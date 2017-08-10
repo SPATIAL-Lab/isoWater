@@ -1,89 +1,198 @@
-library(MASS)
+#####
+#--- preliminaries ----
+#####
 
-sourceprob = function(vars){
-  #vars = Hbar_o, Hsig_o, Obar_o, Osig_o, Hbar_h, Hsig_h, Obar_h, Osig_h, HOcorr_h, Sbar_h, Ssig_h, graph
-  
-  ngens=5000
-  
-  H_o = rnorm(ngens, vars[1], vars[2])
-  O_o = rnorm(ngens, vars[3], vars[4])
-  HO_h = mvrnorm(ngens, c(vars[5], vars[7]), 
-                 matrix(c(vars[6]^2, vars[9]*vars[6]*vars[8], vars[9]*vars[6]*vars[8], vars[8]^2),2,2))
-  S_o = (H_o-HO_h[,1])/(O_o-HO_h[,2])
-  
-  if(graph){
-    par(mai=c(1.3,1.3,0.5,0.5))
-    plot(HO_h[,2],HO_h[,1],xlim=c(vars[7]-1, vars[7]+3), ylim=c(vars[5]-8, vars[5]+20), 
-        xlab=expression(paste(delta^{18}, "O (\u2030)")),
-        ylab=expression(paste(delta^{2}, "H (\u2030)")))
-    rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col = "grey")
-    lines(c(vars[7]-1, vars[7]+2.5),c(vars[5]-8, vars[5]+20), lw=2)
-    mapply(abline, a=H_o-S_o*O_o, b=S_o, col="red")
-    points(HO_h[,2],HO_h[,1])
-    points(O_o, H_o, pch=21, col="red", bg="white")
-    lines(c(vars[7]-1, vars[7]+3),c(vars[5]-1*vars[10], vars[5]+3*vars[10]), col="black", lw=2)
-    points(vars[7], vars[5], pch=21, bg="light grey")
-    points(vars[3], vars[1], pch=21, col="red", bg="light grey")
-  }
-  
-  Sprob_o = mean(dnorm(S_o, vars[10], vars[11]))
-  return(Sprob_o)
+library(mvtnorm)
+library(MCMCpack)
+
+#####functions here
+
+#####
+#--- isotope value data frame ----
+#creates object of 'iso' data structure used to pass values to functions
+#####
+
+#takes values of H and O isotope composition, SD of each, and covariance
+iso = function(H,O,Hsd,Osd,HOc){
+  return(data.frame(H=H, O=O, Hsd=Hsd, Osd=Osd, HOc=HOc))
 }
 
-mixprob = function(vars){
-  #vars = 1:Hbar_o, 2:Hsig_o, 3:Obar_o, 4:Osig_o, 5:Hbar_h1, 6:Hsig_h1, 7:Obar_h1, 8:Osig_h1, 9:HOcorr_h1, 
-  #10:Hbar_h2, 11:Hsig_h2, 12:Obar_h2, 13:Osig_h2, 14:HOcorr_h2, 15:Sbar_h, 16:Ssig_h, 17:graph
+#####
+#--- single source implementation ----
+#####
+
+#takes values of observed and hypothesized source water (each type 'iso'), hypothesized EL slope value
+#prior probability of source, and number of parameter draws
+sourceprob = function(obs, hsource, hslope, prior=1, ngens=10000){
   
-  ngens=5000
-
-  H_o = rnorm(ngens, vars[1], vars[2])
-  O_o = rnorm(ngens, vars[3], vars[4])
-  HO_h1 = mvrnorm(ngens, c(vars[5], vars[7]), 
-                matrix(c(vars[6]^2, vars[9]*vars[6]*vars[8], vars[9]*vars[6]*vars[8], vars[8]^2),2,2))
-  HO_h2 = mvrnorm(ngens, c(vars[10], vars[12]), 
-                matrix(c(vars[11]^2, vars[14]*vars[11]*vars[13], vars[14]*vars[11]*vars[13], vars[13]^2),2,2))
-
-  mix_max = c(1:ngens)
-  Hmax_h = c(1:ngens)
-  Omax_h = c(1:ngens)
-  for (i in 1:ngens){
-    mix = seq(0,1,0.005)
-    H_h = HO_h1[i,1]*mix + HO_h2[i,1]*(1-mix)
-    O_h = HO_h1[i,2]*mix + HO_h2[i,2]*(1-mix)
-    S_o = (H_o[i]-H_h)/(O_o[i]-O_h)
-    Sprob_o = dnorm(S_o, vars[15], vars[16])
-    topprob = which.max(Sprob_o)
-    mix_max[i] = mix[topprob]
-    Hmax_h[i] = HO_h1[i,1]*mix[topprob] + HO_h2[i,1]*(1-mix[topprob])
-    Omax_h[i] = HO_h1[i,2]*mix[topprob] + HO_h2[i,2]*(1-mix[topprob])
+  #ngens observed values
+  HO_obs = rmvnorm(ngens, c(obs$H, obs$O), matrix(c(obs$Hsd^2, rep(obs$HOc*obs$Hsd*obs$Osd,2), obs$Osd^2),2,2))
+  H_obs = HO_obs[,1]
+  O_obs = HO_obs[,2]
+  obs_prob = vector(,ngens)
+  for(i in 1:ngens){
+    obs_prob[i] = dmvnorm(c(H_obs[i], O_obs[i]),c(obs$H, obs$O), sigma=matrix(c(obs$Hsd^2, rep(obs$HOc*obs$Hsd*obs$Osd,2), obs$Osd^2),2,2))
   }
+  
+  #ngens hypothesized source values
+  HO_h = rmvnorm(ngens, c(hsource$H, hsource$O), matrix(c(hsource$Hsd^2, rep(hsource$HOc*hsource$Hsd*hsource$Osd,2), hsource$Osd^2),2,2))
+  H_h=HO_h[,1]
+  O_h=HO_h[,2]
+  hypo_prob = vector(,ngens)
+  for(i in 1:ngens){
+    hypo_prob[i] = dmvnorm(c(H_h[i], O_h[i]),c(hsource$H, hsource$O), sigma=matrix(c(hsource$Hsd^2, rep(hsource$HOc*hsource$Hsd*hsource$Osd,2), hsource$Osd^2),2,2))
+  }
+  
+  #get slope and source probability for each case
+  S = (H_obs-H_h)/(O_obs-O_h)
+  Sprob = dnorm(S, hslope[1], hslope[2])
+  
+  #if sample value lies below or left of source evaporation can't explain it
+  msk = ifelse(H_h > H_obs | O_h > O_obs, 0, 1)
+  Sprob = Sprob * msk
+  goods = sum(msk)
 
-  if(graph){
-    d = density(mix_max)
-    plot(d)
-    points(mean(mix_max), 0, col="blue")
-    lines(c(mean(mix_max)-sd(mix_max), mean(mix_max)+sd(mix_max)), c(0,0), col="blue")
-    m1 = (vars[10]-vars[5])/(vars[12]-vars[7])
-    b1 = vars[5] - m1*vars[7]
-    m2 = vars[15]
-    b2 = vars[1] - m2*vars[3]
-    x1 = (b2-b1)/(m1-m2)
-    anymix = (vars[12] - x1)/(vars[12] - vars[7])
-    points(anymix, 0, col="red")
+  results = data.frame(H_h, O_h, hypo_prob, H_obs, O_obs, obs_prob, Sprob) #return data frame w/ all draws
+
+  print(paste(goods, "out of", ngens))  #how many non-zero probabilities?
+
+  return(results)
+  
+}
+
+#####
+#--- MWL source implementation ----
+#####
+
+#takes values of observed water (type 'iso'), MWL (see below), hypothesized EL slope value
+#and number of parameter draws
+mwlsource = function(obs, mwl=c(8.01, 9.57, 167217291.1, 2564532.2, -8.096, 80672), hslope, ngens=10000){
+  #mwl contains parameters for the meteoric water line:
+  #slope, intercept, sum of squares in d2H, sum of squares in d18O, average d18O, and number of samples.
+  #Defaults were calculated from precipitation samples extracted from waterisotopes.org DB on 7/7/2017,
+  #screened to include only samples with -10 < Dex < 30 
+
+  #establish credible range for source water d18O
+  o_cent = (mwl[2]-(obs$H - hslope[1]*obs$O) ) / (hslope[1]-mwl[1])
+  o_min = o_cent-10
+  o_max = o_cent+5
+  sr = sqrt((mwl[3] - (mwl[1]^2 * mwl[4]))/(mwl[6]-2))  ##sum of squares
+
+  #space for results
+  results = data.frame("H_h"=double(), "O_h"=double(), "hypo_prob"=double(), "H_obs"=double(), "O_obs"=double(), "obs_prob"=double(), "Sprob"=double())
+  i=1
+  
+  #iterate until ngens draws in posterior
+  while(i<=ngens){
     
-    par(mai=c(1.3,1.3,0.5,0.5))
-    plot(HO_h1[,2],HO_h1[,1],xlim=c(min(c(vars[7], vars[12]))-1,max(c(vars[7], vars[12]))+1), 
-         ylim=c(min(c(vars[5], vars[10]))-8,max(c(vars[5], vars[10]))+8), 
-         xlab=expression(paste(delta^{18}, "O (\u2030)")),
-         ylab=expression(paste(delta^{2}, "H (\u2030)")))
-    points(HO_h2[,2], HO_h2[,1])
-    points(O_o, H_o, col="red")
-    lines(c(min(c(vars[7], vars[12])), max(c(vars[7], vars[12]))),c(min(c(vars[5], vars[10])), max(c(vars[5], vars[10]))))
-    lines(c(vars[3]-4, vars[3]+1),c(vars[1] - 4*vars[15], vars[1] + 1*vars[15]), col="red")
-    points(Omax_h, Hmax_h, col="blue")
+    #observed H and O values from bivariate normal
+    HO_obs = rmvnorm(1, c(obs$H, obs$O), matrix(c(obs$Hsd^2, rep(obs$HOc*obs$Hsd*obs$Osd,2), obs$Osd^2),2,2))
+    
+    #hypothesized source O from uniform spanning interval obtained above
+    O_h = o_min + runif(1) * (o_max - o_min)
+    
+    #use st err of prediction to draw hypothesized source H from normal distribution around MWL
+    sy = sr * sqrt(1 + 1 / mwl[6] + (O_h - mwl[5])^2 / mwl[4])  ##prediction standard error, e.g., http://science.widener.edu/svb/stats/regress.html and http://www.real-statistics.com/regression/confidence-and-prediction-intervals/
+    H_h = rnorm(1, O_h * mwl[1] + mwl[2], sy)
+
+    #get slope for draw and probability    
+    S = (HO_obs[1]-H_h)/(HO_obs[2]-O_h)
+    Sprob = dnorm(S, hslope[1], hslope[2])
+    Sprob = ifelse(H_h > HO_obs[1] | O_h > HO_obs[2], 0, Sprob)
+
+    #keep it or discard    
+    if(runif(1)<Sprob){
+      hypo_prob = dnorm(H_h, O_h * mwl[1] + mwl[2], sy)
+      obs_prob = dmvnorm(c(HO_obs[1], HO_obs[2]),c(obs$H, obs$O), sigma=matrix(c(obs$Hsd^2, rep(obs$HOc*obs$Hsd*obs$Osd,2), obs$Osd^2),2,2))
+      results = rbind(results, c(H_h, O_h, hypo_prob, HO_obs[1], HO_obs[2], obs_prob, Sprob, 0))
+      i=i+1
+    }
+  }
+
+  #reassign names to results dataframe
+  results@names = c("H_h", "O_h", "hypo_prob", "H_obs", "O_obs", "obs_prob", "Sprob")
+
+  return(results)
+  
+}
+
+#####
+#--- Mixtures implementation ----
+#####
+
+#takes values of observed and hypothesized endmember source waters (each type 'iso'),hypothesized EL slope,
+#prior (as relative contribution of each source to mixture), and number of parameter draws
+mixprob = function(obs, hsource, hslope, prior=rep(1,nrow(hsource)), shp=2, ngens=10000){
+
+  #get number of sources
+  nsource = nrow(hsource)
+
+  #set up spaces and indicies
+  i=1; iter=1
+  HO_hypo = matrix(, nsource, 2)
+  H_obs = vector(,ngens)
+  O_obs = vector(,ngens)
+  H_h = vector(,ngens)
+  O_h = vector(,ngens)
+  fracs = matrix(,ngens,nsource)
+  obs_prob = vector(,ngens)
+  hypo_prob = vector(,ngens)
+  fracs_prob = vector(,ngens)
+  Sprob = vector(,ngens)
+  prob_hold = vector(,nsource)
+
+  #iterate until ngens draws in posterior
+  while(i<=ngens){
+    #observed values; note that DoParllel needs namespace for mvtnorm functions
+    HO_obs = mvtnorm::rmvnorm(1, c(obs$H, obs$O), matrix(c(obs$Hsd^2, rep(obs$HOc*obs$Hsd*obs$Osd,2), obs$Osd^2),2,2))
+    H_obs[i] = HO_obs[1]
+    O_obs[i] = HO_obs[2]
+    
+    #hypothesized values
+    for(j in 1:nsource){
+      HO_hypo[j,] = mvtnorm::rmvnorm(1, c(hsource$H[j], hsource$O[j]), matrix(c(hsource$Hsd[j]^2, rep(hsource$HOc[j]*hsource$Hsd[j]*hsource$Osd[j],2), hsource$Osd[j]^2),2,2))
+    }
+    
+    #mixture
+    alphas = prior/min(prior) * shp
+    fracs[i,] = MCMCpack::rdirichlet(1, alphas)
+    H_h[i] = sum(HO_hypo[,1] * fracs[i,])
+    O_h[i] = sum(HO_hypo[,2] * fracs[i,])
+    
+    #evaluate conditional probability
+    if(H_h > H_obs || O_h > O_obs){
+      Sprob[i] = 0
+    } else{
+      S = (H_obs[i]-H_h[i])/(O_obs[i]-O_h[i])
+      Sprob[i] = dnorm(S, hslope[1], hslope[2])
+    }
+    
+    #check whether to retain
+    if(runif(1) < Sprob[i]){
+      obs_prob[i] = mvtnorm::dmvnorm(HO_obs, sigma=matrix(c(obs$Hsd^2, rep(obs$HOc*obs$Hsd*obs$Osd,2), obs$Osd^2),2,2))
+      fracs_prob[i] = MCMCpack::ddirichlet(fracs[i,], alphas)
+      for(j in 1:nsource){
+        prob_hold[j] = mvtnorm::dmvnorm(HO_hypo[j,], c(hsource$H[j], hsource$O[j]), matrix(c(hsource$Hsd[j]^2, rep(hsource$HOc[j]*hsource$Hsd[j]*hsource$Osd[j],2), hsource$Osd[j]^2),2,2))
+      }
+      hypo_prob[i] = prod(prob_hold)
+      i = i + 1
+    }
+    
+    #check for poorly posed
+    iter = iter + 1
+    if(iter > 10000 && i/iter <  0.01){
+      warning("too few valid draws")
+      break()
+    }
   }
   
-  reslt = c(mean(mix_max), sd(mix_max), mix_max)
-  return(reslt)
+  #bundle results in data frame
+  results = data.frame(H_h, O_h, hypo_prob, H_obs, O_obs, obs_prob, fracs, fracs_prob, Sprob)
+
+  #report on efficiency
+  print(paste(iter, "iterations for", ngens, "posterior samples"))
+  
+  return(results)
+  
 }
 
