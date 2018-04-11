@@ -43,9 +43,9 @@ sourceprob = function(obs, hsource, hslope, prior=1, ngens=10000){
     hypo_prob[i] = dmvnorm(c(H_h[i], O_h[i]),c(hsource$H, hsource$O), sigma=matrix(c(hsource$Hsd^2, rep(hsource$HOc*hsource$Hsd*hsource$Osd,2), hsource$Osd^2),2,2))
   }
   
-  #get slope and source probability for each case
+  #get slope and standardized source probability for each case
   S = (H_obs-H_h)/(O_obs-O_h)
-  Sprob = dnorm(S, hslope[1], hslope[2])
+  Sprob = dnorm(S, hslope[1], hslope[2])/dnorm(hslope[1], hslope[1], hslope[2])
   
   #if sample value lies below or left of source evaporation can't explain it
   msk = ifelse(H_h > H_obs | O_h > O_obs, 0, 1)
@@ -95,9 +95,9 @@ mwlsource = function(obs, mwl=c(8.01, 9.57, 167217291.1, 2564532.2, -8.096, 8067
     sy = sr * sqrt(1 + 1 / mwl[6] + (O_h - mwl[5])^2 / mwl[4])  ##prediction standard error, e.g., http://science.widener.edu/svb/stats/regress.html and http://www.real-statistics.com/regression/confidence-and-prediction-intervals/
     H_h = rnorm(1, O_h * mwl[1] + mwl[2], sy)
 
-    #get slope for draw and probability    
+    #get slope for draw and standardized probability    
     S = (HO_obs[1]-H_h)/(HO_obs[2]-O_h)
-    Sprob = dnorm(S, hslope[1], hslope[2])
+    Sprob = dnorm(S, hslope[1], hslope[2])/dnorm(hslope[1], hslope[1], hslope[2])
     Sprob = ifelse(H_h > HO_obs[1] | O_h > HO_obs[2], 0, Sprob)
 
     #keep it or discard    
@@ -164,7 +164,7 @@ mixprob = function(obs, hsource, hslope, prior=rep(1,nrow(hsource)), shp=2, ngen
       Sprob[i] = 0
     } else{
       S = (H_obs[i]-H_h[i])/(O_obs[i]-O_h[i])
-      Sprob[i] = dnorm(S, hslope[1], hslope[2])
+      Sprob[i] = dnorm(S, hslope[1], hslope[2])/dnorm(hslope[1], hslope[1], hslope[2])
     }
     
     #check whether to retain
