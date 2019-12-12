@@ -1,6 +1,7 @@
 model {
   #Data model
-  HO ~ dmnorm(pred.mu, HO.tau)
+  HO ~ dmnorm(pred.mu, Omega)
+  Omega = inverse(Sigma)
   pred.mu = c(h_pred, o_pred)
   
   #Process model

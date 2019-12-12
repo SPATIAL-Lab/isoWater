@@ -81,10 +81,9 @@ mwlsource = function(obs, mwl=c(8.01, 9.57, 167217291.1, 2564532.2, -8.096, 8067
   sr = sqrt((mwl[3] - (mwl[1]^2 * mwl[4]))/(mwl[6]-2))  ##sum of squares
   
   HO = obs[1:2]
-  HO.cov = matrix(c(obs$Hsd^2, obs$HOc, obs$HOc, obs$Osd^2), nrow = 2)
-  HO.tau = solve(HO.cov)
+  Sigma = matrix(c(obs$Hsd^2, obs$HOc, obs$HOc, obs$Osd^2), nrow = 2)
   
-  d = list(o_min = o_min, o_max = o_max, sr = sr, HO = HO, HO.tau = HO.tau, mwl = mwl, hslope = hslope)
+  d = list(o_min = o_min, o_max = o_max, sr = sr, HO = HO, Sigma = Sigma, mwl = mwl, hslope = hslope)
   p = c("h_s", "o_s", "slp", "evap")
 
   n.iter = ngens * 1.1
