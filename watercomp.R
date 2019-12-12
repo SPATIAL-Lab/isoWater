@@ -4,6 +4,8 @@
 
 library(mvtnorm)
 library(MCMCpack)
+library(rjags)
+library(R2jags)
 
 #####functions here
 
@@ -74,45 +76,28 @@ mwlsource = function(obs, mwl=c(8.01, 9.57, 167217291.1, 2564532.2, -8.096, 8067
 
   #establish credible range for source water d18O
   o_cent = (mwl[2]-(obs$H - hslope[1]*obs$O) ) / (hslope[1]-mwl[1])
-  o_min = o_cent-10
-  o_max = o_cent+5
+  o_min = o_cent - 10
+  o_max = obs$O + 4 * obs$Osd
   sr = sqrt((mwl[3] - (mwl[1]^2 * mwl[4]))/(mwl[6]-2))  ##sum of squares
-
-  #space for results
-  results = data.frame("H_h"=double(), "O_h"=double(), "hypo_prob"=double(), "H_obs"=double(), "O_obs"=double(), "obs_prob"=double(), "Sprob"=double())
-  i=1
   
-  #iterate until ngens draws in posterior
-  while(i<=ngens){
-    
-    #observed H and O values from bivariate normal
-    HO_obs = rmvnorm(1, c(obs$H, obs$O), matrix(c(obs$Hsd^2, rep(obs$HOc*obs$Hsd*obs$Osd,2), obs$Osd^2),2,2))
-    
-    #hypothesized source O from uniform spanning interval obtained above
-    O_h = o_min + runif(1) * (o_max - o_min)
-    
-    #use st err of prediction to draw hypothesized source H from normal distribution around MWL
-    sy = sr * sqrt(1 + 1 / mwl[6] + (O_h - mwl[5])^2 / mwl[4])  ##prediction standard error, e.g., http://science.widener.edu/svb/stats/regress.html and http://www.real-statistics.com/regression/confidence-and-prediction-intervals/
-    H_h = rnorm(1, O_h * mwl[1] + mwl[2], sy)
+  HO = obs[1:2]
+  HO.cov = matrix(c(obs$Hsd^2, obs$HOc, obs$HOc, obs$Osd^2), nrow = 2)
+  HO.tau = solve(HO.cov)
+  
+  d = list(o_min = o_min, o_max = o_max, sr = sr, HO = HO, HO.tau = HO.tau, mwl = mwl, hslope = hslope)
+  p = c("h_s", "o_s", "slp", "evap")
 
-    #get slope for draw and standardized probability    
-    S = (HO_obs[1]-H_h)/(HO_obs[2]-O_h)
-    Sprob = dnorm(S, hslope[1], hslope[2])/dnorm(hslope[1], hslope[1], hslope[2])
-    Sprob = ifelse(H_h > HO_obs[1] | O_h > HO_obs[2], 0, Sprob)
-
-    #keep it or discard    
-    if(runif(1)<Sprob){
-      hypo_prob = dnorm(H_h, O_h * mwl[1] + mwl[2], sy)
-      obs_prob = dmvnorm(c(HO_obs[1], HO_obs[2]),c(obs$H, obs$O), sigma=matrix(c(obs$Hsd^2, rep(obs$HOc*obs$Hsd*obs$Osd,2), obs$Osd^2),2,2))
-      results = rbind(results, c(H_h, O_h, hypo_prob, HO_obs[1], HO_obs[2], obs_prob, Sprob, 0))
-      i=i+1
-    }
-  }
-
+  n.iter = ngens * 1.1
+  n.burnin = ngens * 0.1
+  n.thin = floor((n.iter - n.burnin) / 2500)
+  post = jags(d, NULL, p, "lmwl.R", n.iter = n.iter, n.burnin = n.burnin, n.thin = n.thin)
+  
+  sl = post$BUGSoutput$sims.list
+  results = data.frame(sl$h_s, sl$o_s, sl$slp, sl$evap)
   #reassign names to results dataframe
-  results@names = c("H_h", "O_h", "hypo_prob", "H_obs", "O_obs", "obs_prob", "Sprob")
+  results@names = c("H_h", "O_h", "S", "E")
 
-  return(results)
+  return(list(mcmc_summary = post$BUGSoutput$summary, results = results))
   
 }
 
