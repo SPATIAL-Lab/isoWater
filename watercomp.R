@@ -75,22 +75,33 @@ mwlsource = function(obs, mwl=c(8.01, 9.57, 167217291.1, 2564532.2, -8.096, 8067
   #screened to include only samples with -10 < Dex < 30 
 
   #establish credible range for source water d18O
-  o_cent = (mwl[2]-(obs$H - hslope[1]*obs$O) ) / (hslope[1]-mwl[1])
-  o_min = o_cent - 10
-  o_max = obs$O + 4 * obs$Osd
+  o_cent = (mwl[2] - (obs$H - hslope[1] * obs$O) ) / (hslope[1]-mwl[1])
+  var.x = mwl[4] / mwl[6]
+  var.y = mwl[3] / mwl[6]
+  var.xy = var.x * mwl[1]
+  o_var = var.x - (var.xy / var.y) ^ 2 * var.y 
+  o_var = o_var + (var.x - o_var) * hslope[1] / mwl[1]
+  
   sr = sqrt((mwl[3] - (mwl[1]^2 * mwl[4]))/(mwl[6]-2))  ##sum of squares
   
   HO = obs[1:2]
   Sigma = matrix(c(obs$Hsd^2, obs$HOc, obs$HOc, obs$Osd^2), nrow = 2)
   
-  d = list(o_min = o_min, o_max = o_max, sr = sr, HO = HO, Sigma = Sigma, mwl = mwl, hslope = hslope)
+  d = list(o_cent = o_cent, o_var = o_var, sr = sr,
+           HO = HO, Sigma = Sigma, mwl = mwl,
+           hslope = hslope)
+  inits = list()
+  for(i in 1:3){
+    inits[[i]] = list("o_s" = rnorm(1, o_cent, abs(obs$O - o_cent) / 2))
+  }  
   p = c("h_s", "o_s", "slp", "evap")
 
   n.iter = ngens * 1.1
   n.burnin = ngens * 0.1
   n.thin = floor((n.iter - n.burnin) / 2500)
-  post = jags(d, NULL, p, "lmwl.R", n.iter = n.iter, n.burnin = n.burnin, n.thin = n.thin)
-  
+  post = jags(d, NULL, p, "lmwl.R", n.iter = n.iter, 
+              n.burnin = n.burnin, n.thin = n.thin)
+
   sl = post$BUGSoutput$sims.list
   results = data.frame(sl$h_s, sl$o_s, sl$slp, sl$evap)
   #reassign names to results dataframe
