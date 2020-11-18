@@ -16,7 +16,8 @@ library(R2jags)
 
 #takes values of H and O isotope composition, SD of each, and covariance
 iso = function(H,O,Hsd,Osd,HOc){
-  return(data.frame(H=H, O=O, Hsd=Hsd, Osd=Osd, HOc=HOc))
+  v = data.frame(H=H, O=O, Hsd=Hsd, Osd=Osd, HOc=HOc)
+  return(v)
 }
 
 #####
@@ -74,6 +75,18 @@ mwlsource = function(obs, mwl=c(8.01, 9.57, 167217291.1, 2564532.2, -8.096, 8067
   #Defaults were calculated from precipitation samples extracted from waterisotopes.org DB on 7/7/2017,
   #screened to include only samples with -10 < Dex < 30 
 
+  #get number of observations
+  nobs = nrow(obs)
+  
+  #stacked obs vcov matrix
+  obs.vcov = matrix(nrow = nobs * 2, ncol = 2)
+  for(i in 1:nobs){
+    obs.vcov[1 + (i - 1) * 2, 1] = obs[i, 3] ^ 2
+    obs.vcov[1 + (i - 1) * 2, 2] = obs[i, 5]
+    obs.vcov[2 + (i - 1) * 2, 1] = obs[i, 5]
+    obs.vcov[2 + (i - 1) * 2, 2] = obs[i, 4] ^ 2
+  }
+  
   #establish credible range for source water d18O
   o_cent = (mwl[2] - (obs$H - hslope[1] * obs$O) ) / (hslope[1]-mwl[1])
   var.x = mwl[4] / mwl[6]
@@ -83,13 +96,10 @@ mwlsource = function(obs, mwl=c(8.01, 9.57, 167217291.1, 2564532.2, -8.096, 8067
   o_var = o_var + (var.x - o_var) * hslope[1] / mwl[1]
   
   sr = sqrt((mwl[3] - (mwl[1]^2 * mwl[4]))/(mwl[6]-2))  ##sum of squares
-  
-  HO = obs[1:2]
-  Sigma = matrix(c(obs$Hsd^2, obs$HOc, obs$HOc, obs$Osd^2), nrow = 2)
-  
+
   d = list(o_cent = o_cent, o_var = o_var, sr = sr,
-           HO = HO, Sigma = Sigma, mwl = mwl,
-           hslope = hslope)
+           obs = obs, obs.vcov = obs.vcov, mwl = mwl,
+           hslope = hslope, nobs = nobs)
   inits = list()
   for(i in 1:3){
     inits[[i]] = list("o_s" = rnorm(1, o_cent, abs(obs$O - o_cent) / 2))
@@ -99,7 +109,7 @@ mwlsource = function(obs, mwl=c(8.01, 9.57, 167217291.1, 2564532.2, -8.096, 8067
   n.iter = ngens * 1.1
   n.burnin = ngens * 0.1
   n.thin = floor((n.iter - n.burnin) / 2500)
-  post = jags(d, NULL, p, "lmwl.R", n.iter = n.iter, 
+  post = jags(d, NULL, p, lmwl, n.iter = n.iter, 
               n.burnin = n.burnin, n.thin = n.thin)
 
   sl = post$BUGSoutput$sims.list
@@ -108,7 +118,6 @@ mwlsource = function(obs, mwl=c(8.01, 9.57, 167217291.1, 2564532.2, -8.096, 8067
   results@names = c("H_h", "O_h", "S", "E")
 
   return(list(mcmc_summary = post$BUGSoutput$summary, results = results))
-  
 }
 
 #####
@@ -151,7 +160,7 @@ mixprob = function(obs, hsource, hslope, prior=rep(1,nrow(hsource)), shp=2, ngen
   
   #data
   d = list(nsource = nsource, nobs = nobs, 
-           o = obs, o.vcov = obs.vcov,
+           obs = obs, obs.vcov = obs.vcov,
            s = hsource, s.vcov = hsource.vcov,
            alphas = alphas, hslope = hslope)
   
@@ -162,7 +171,7 @@ mixprob = function(obs, hsource, hslope, prior=rep(1,nrow(hsource)), shp=2, ngen
   n.iter = ngens * 1.1
   n.burnin = ngens * 0.1
   n.thin = floor((n.iter - n.burnin) / 2500)
-  post = jags(d, NULL, p, "mix.R", n.iter = n.iter, 
+  post = jags(d, NULL, p, mixmod, n.iter = n.iter, 
               n.burnin = n.burnin, n.thin = n.thin)
   
   sl = post$BUGSoutput$sims.list
@@ -179,3 +188,54 @@ mixprob = function(obs, hsource, hslope, prior=rep(1,nrow(hsource)), shp=2, ngen
   return(list(mcmc_summary = post$BUGSoutput$summary, results = results))
 }
 
+mixmod = function(){
+  #Data model
+  for(i in 1:nobs){
+    obs[i, 1:2] ~ dmnorm.vcov(c(h_pred, o_pred), obs.vcov[(1 + (i-1) * 2):
+                                                        (2 + (i-1) * 2),])
+  }
+  
+  #Process model
+  h_pred = mix.h + evap * slp
+  o_pred = mix.o + evap
+  
+  #evap prior
+  evap ~ dunif(0, 15)
+  
+  #EL slope prior
+  slp ~ dnorm(hslope[1], 1 / hslope[2] ^ 2)
+  
+  #mixture
+  mix.o = sum(fracs * h_s[, 2])
+  mix.h = sum(fracs * h_s[, 1])
+  fracs ~ ddirch(alphas)
+  
+  #sources prior
+  for(i in 1:nsource){
+    h_s[i, 1:2] ~ dmnorm.vcov(s[i, 1:2], s.vcov[(1 + (i-1) * 2):
+                                                  (2 + (i-1) * 2),])
+  }
+}
+
+lmwl = function(){
+  #Data model
+  for(i in 1:nobs){
+    obs[i, 1:2] ~ dmnorm.vcov(c(h_pred, o_pred), obs.vcov[(1 + (i-1) * 2):
+                                                        (2 + (i-1) * 2),])
+  }
+  
+  #Process model
+  h_pred = h_s + evap * slp
+  o_pred = o_s + evap
+  
+  #evap prior
+  evap ~ dunif(0, 15)
+  
+  #EL slope prior
+  slp ~ dnorm(hslope[1], 1 / hslope[2] ^ 2)
+  
+  #MWL source prior
+  h_s ~ dnorm(o_s * mwl[1] + mwl[2], 1 / sy ^ 2) 
+  sy = sr * sqrt(1 + 1 / mwl[6] + (o_s - mwl[5])^2 / mwl[4])
+  o_s ~ dunif(o_min, o_max)
+}
