@@ -117,77 +117,65 @@ mwlsource = function(obs, mwl=c(8.01, 9.57, 167217291.1, 2564532.2, -8.096, 8067
 
 #takes values of observed and hypothesized endmember source waters (each type 'iso'),hypothesized EL slope,
 #prior (as relative contribution of each source to mixture), and number of parameter draws
-mixprob = function(obs, hsource, hslope, prior=rep(1,nrow(hsource)), shp=2, ngens=10000){
+mixprob = function(obs, hsource, hslope, prior=rep(1,nrow(hsource)), shp=2, ngens=100000){
 
-  #get number of sources
-  nsource = nrow(hsource)
-
-  #set up spaces and indicies
-  i=1; iter=1
-  HO_hypo = matrix(, nsource, 2)
-  H_obs = vector(,ngens)
-  O_obs = vector(,ngens)
-  H_h = vector(,ngens)
-  O_h = vector(,ngens)
-  fracs = matrix(,ngens,nsource)
-  obs_prob = vector(,ngens)
-  hypo_prob = vector(,ngens)
-  fracs_prob = vector(,ngens)
-  Sprob = vector(,ngens)
-  prob_hold = vector(,nsource)
-
-  #iterate until ngens draws in posterior
-  while(i<=ngens){
-    #observed values; note that DoParllel needs namespace for mvtnorm functions
-    HO_obs = mvtnorm::rmvnorm(1, c(obs$H, obs$O), matrix(c(obs$Hsd^2, rep(obs$HOc*obs$Hsd*obs$Osd,2), obs$Osd^2),2,2))
-    H_obs[i] = HO_obs[1]
-    O_obs[i] = HO_obs[2]
-    
-    #hypothesized values
-    for(j in 1:nsource){
-      HO_hypo[j,] = mvtnorm::rmvnorm(1, c(hsource$H[j], hsource$O[j]), matrix(c(hsource$Hsd[j]^2, rep(hsource$HOc[j]*hsource$Hsd[j]*hsource$Osd[j],2), hsource$Osd[j]^2),2,2))
-    }
-    
-    #mixture
-    alphas = prior/min(prior) * shp
-    fracs[i,] = MCMCpack::rdirichlet(1, alphas)
-    H_h[i] = sum(HO_hypo[,1] * fracs[i,])
-    O_h[i] = sum(HO_hypo[,2] * fracs[i,])
-    
-    #evaluate conditional probability
-    if(H_h > H_obs || O_h > O_obs){
-      Sprob[i] = 0
-    } else{
-      S = (H_obs[i]-H_h[i])/(O_obs[i]-O_h[i])
-      Sprob[i] = dnorm(S, hslope[1], hslope[2])/dnorm(hslope[1], hslope[1], hslope[2])
-    }
-    
-    #check whether to retain
-    if(runif(1) < Sprob[i]){
-      obs_prob[i] = mvtnorm::dmvnorm(HO_obs, sigma=matrix(c(obs$Hsd^2, rep(obs$HOc*obs$Hsd*obs$Osd,2), obs$Osd^2),2,2))
-      fracs_prob[i] = MCMCpack::ddirichlet(fracs[i,], alphas)
-      for(j in 1:nsource){
-        prob_hold[j] = mvtnorm::dmvnorm(HO_hypo[j,], c(hsource$H[j], hsource$O[j]), matrix(c(hsource$Hsd[j]^2, rep(hsource$HOc[j]*hsource$Hsd[j]*hsource$Osd[j],2), hsource$Osd[j]^2),2,2))
-      }
-      hypo_prob[i] = prod(prob_hold)
-      i = i + 1
-    }
-    
-    #check for poorly posed
-    iter = iter + 1
-    if(iter > 10000 && i/iter <  0.01){
-      warning("too few valid draws")
-      break()
-    }
+  #get number of observations
+  nobs = nrow(obs)
+  
+  #stacked obs vcov matrix
+  obs.vcov = matrix(nrow = nobs * 2, ncol = 2)
+  for(i in 1:nobs){
+    obs.vcov[1 + (i - 1) * 2, 1] = obs[i, 3] ^ 2
+    obs.vcov[1 + (i - 1) * 2, 2] = obs[i, 5]
+    obs.vcov[2 + (i - 1) * 2, 1] = obs[i, 5]
+    obs.vcov[2 + (i - 1) * 2, 2] = obs[i, 4] ^ 2
   }
   
-  #bundle results in data frame
-  results = data.frame(H_h, O_h, hypo_prob, H_obs, O_obs, obs_prob, fracs, fracs_prob, Sprob)
+  #get number of sources
+  nsource = nrow(hsource)
+  if(nsource < 2){
+    stop("mixing model requires at least 2 sources")
+  }
+  
+  #stacked source vcov matrix
+  hsource.vcov = matrix(nrow = nsource * 2, ncol = 2)
+  for(i in 1:nsource){
+    hsource.vcov[1 + (i - 1) * 2, 1] = hsource[i, 3] ^ 2
+    hsource.vcov[1 + (i - 1) * 2, 2] = hsource[i, 5]
+    hsource.vcov[2 + (i - 1) * 2, 1] = hsource[i, 5]
+    hsource.vcov[2 + (i - 1) * 2, 2] = hsource[i, 4] ^ 2
+  }
+  
+  #dirchlet priors
+  alphas = prior/min(prior) * shp
+  
+  #data
+  d = list(nsource = nsource, nobs = nobs, 
+           o = obs, o.vcov = obs.vcov,
+           s = hsource, s.vcov = hsource.vcov,
+           alphas = alphas, hslope = hslope)
+  
+  #parameters
+  p = c("h_s", "fracs", "slp", "evap")
 
-  #report on efficiency
-  print(paste(iter, "iterations for", ngens, "posterior samples"))
+  #runit
+  n.iter = ngens * 1.1
+  n.burnin = ngens * 0.1
+  n.thin = floor((n.iter - n.burnin) / 2500)
+  post = jags(d, NULL, p, "mix.R", n.iter = n.iter, 
+              n.burnin = n.burnin, n.thin = n.thin)
   
-  return(results)
+  sl = post$BUGSoutput$sims.list
+  results = data.frame(sl$fracs, sl$slp, sl$evap)
+  #reassign names to results dataframe
+  n = "s1_fraction"
+  for(i in 2:nsource){
+    nadd = paste0("s", i, "_fraction")
+    n = c(n, nadd)
+  }
+  n = c(n, "S", "E")
+  results@names = n
   
+  return(list(mcmc_summary = post$BUGSoutput$summary, results = results))
 }
 
