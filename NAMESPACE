@@ -1,0 +1,7 @@
+export(mwlSource)
+export(mixSource)
+export(mwl)
+export(iso)
+importFrom(R2jags, jags, jags.parallel)
+importFrom(stats, sd, var)
+importFrom(graphics, abline, lines, par, points)

@@ -1,0 +1,20 @@
+Package: isoWater
+Type: Package
+Title: Infer source of water using stable isotope data
+Version: 0.1.0.9000
+Author: Gabe Bowen
+Maintainer: Gabe Bowen <gabe.bowen@utah.edu>
+Description: Bayesian inference of the source and source isotope composition of water samples that may have experienced evaporation. Original algorithms presented in Bowen et al. (2018) <doi:10.1007/s00442-018-4192-5>.
+Imports: R2jags
+Depends: R (>= 3.5)
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat,
+    covr
+VignetteBuilder: knitr
+License: GPL-3
+Language: en-US
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
