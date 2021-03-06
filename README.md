@@ -2,11 +2,11 @@
 
 An R package for inferring the source of waters based on their isotopic composition and allowing for isotope effects associated with partial evaporation. Install from GitHub using the devtools package:
 
-'''
+```
 library(devtools)
 install_GitHub("SPATIAL-Lab/isoWater")
 library(isoWater)
-'''
+```
 
 References:
 
