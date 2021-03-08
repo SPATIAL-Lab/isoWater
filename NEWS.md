@@ -1,5 +1,8 @@
 # isoWater news
 
+## isoWater 0.2.0.9000
+* Updated documentation
+
 ## isoWater 0.2.0
 * Reformatted code to create package
 * Added function mwl to calculate stats for a MWL based on H and O data

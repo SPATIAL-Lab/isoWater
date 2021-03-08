@@ -13,7 +13,7 @@ isoWater uses Bayesian estimation to infer information about the origin of a wat
 
 ```{r install, eval=FALSE}
 library(devtools)
-install_github("SPATIAL-Lab/isoWater/releases/latest")
+install_github("SPATIAL-Lab/isoWater@*release")
 ```
 ```{r load}
 library(isoWater)
