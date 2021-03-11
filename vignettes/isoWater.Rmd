@@ -1,6 +1,10 @@
 ---
 title: "isoWater"
-output: html_document
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{isoWater}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
 ---
 
 ```{r setup, include=FALSE}
@@ -9,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Setup
 
-isoWater uses Bayesian estimation to infer information about the origin of a water sample based on its stable isotope ratios. The package can be installed from the GitHub repository:
+isoWater includes two sets of tools. The first supports queries to the Waterisotopes Database ([wiDB](https://waterisotopesDB.org)) to identify and download data. The second uses Bayesian estimation to infer information about the origin of a water sample based on its stable isotope ratios. The package can be installed from the GitHub repository:
 
 ```{r install, eval=FALSE}
 library(devtools)
@@ -19,15 +23,54 @@ install_github("SPATIAL-Lab/isoWater@*release")
 library(isoWater)
 ```
 
+## wiDB Queries
+
+Three functions are available to streamline queries to the wiDB. `wiDB_values` is designed to expose the list of terms used in the database's categorical metadata fields, helping the user design other queries:
+
+```{r values}
+wiDB_values(c("types", "countries"))
+```
+
+`wiDB_sites` queries the database and returns a data.frame containing the latitidue and longitude coordinates for all sites matching the provided query criteria. This supports quick screening of data avaiability, for example:
+
+```{r sites, fig.width=5, fig.asp=0.6}
+ls = wiDB_sites(countries = "US", types = "Lake")
+ps = wiDB_sites(countries = "US", types = "Precipitation")
+par(mar = c(4, 4, 1, 1))
+plot(ls[, 2:1], xlim = c(-125, -68), ylim = c(25, 50))
+points(ps[, 2:1], col = "red")
+```
+
+Now we can refine our query and request isotope data using the function `wiDB_data`. We will focus in on the area around Ames, Iowa, where the sites query showed both lake and precipitation data. 
+
+```{r data}
+ld = wiDB_data(minLat = 41, maxLat = 42, minLong = -94, maxLong = -93, types = "Lake")
+pd = wiDB_data(minLat = 41, maxLat = 42, minLong = -94, maxLong = -93, types = "Precipitation")
+ld$data
+pd$projects
+```
+
+Notice that the object returned by the data function is a named list that includes the requested data and a summary of the projects (data sources) from which those data are derived. See the documentation for this function for details, and always remember to cite any data you use!
+
+Let's look at the data a little more closely:
+
+```{r plot, fig.width=5, fig.asp=0.8}
+par(mar = c(5, 5, 1, 1))
+plot(pd$data$d18O, pd$data$d2H, xlab = expression(delta^{18}*"O"),
+     ylab = expression(delta^{2}*"H"))
+abline(10, 8)
+points(ld$data$d18O, ld$data$d2H, col = "red")
+```
+
+It appears that the precipitation values vary widely and cluster around the Global Meteoric Water Line, and the lake values are relatively high and somewhat below the GMWL, suggesting that they may be somewhat evaporatively enriched.
+
 ## Meteoric Water Line source
 
-Based one one or more isotopic measurements of a water sample and parameters describing a local meteoric water line (MWL), estimate the isotope ratios of the sample's source prior to evaporation. If you have data you'd like to use to constrain the MWL, the `mwl` function will produce a data object describing the line: 
+What if we wanted to 'correct' for the isotopic effects of evaporation, giving sample values that could be compared directly with one or more unevaporated sources. In other words, based on isotopic data for a water sample and parameters describing a local meteoric water line (MWL), estimate the isotope ratios of the sample's source prior to evaporation. If you have data you'd like to use to constrain the MWL, like we do here, the `mwl` function will produce a data object describing the line: 
 
 ```{r mwl, fig.width=5, fig.asp=0.8}
-#hypothetical MWL samples
-O = runif(10, -15, -2)
-H = O * 8 + 10 + rnorm(10, 0, 6)
-HO = data.frame(H, O)
+#extract the precipitation H and O isotope values
+HO = data.frame(pd$data$d2H, pd$data$d18O)
 MWL = mwl(HO)
 ```
 
@@ -36,24 +79,27 @@ If you don't have local data for a MWL, the function `mwlSource` (see below) has
 Now bundle the data for your water sample as an "iso" data object using the function `iso`. Note that isoWater uses a bivariate normal distribution to describe all water sample values; thus the parameters in an iso object include the H and O isotope values, their 1 standard deviation uncertainties, and the error covariance for H and O. For measured sample values the covariance might be expected to be zero (the default value in `iso`), but for many values (e.g., potential sample or source values estimated from multiple measurements) the H and O error covariance will be substantial.
 
 ```{r iso}
-#hypothetical sample value
-obs = iso(-60, -6, 0.5, 0.1)
+#we will analyze one of our lake water samples, and assume realistic
+#values of analytical uncertainty and no error covariance
+obs = iso(ld$data$d2H[1], ld$data$d18O[1], 0.5, 0.1)
 ```
 
-Lastly, we need to provide a prior distribution for the evaporation line slope, which is represented as a univariate normal distribution with mean and standard deviation parameters:
+Lastly, we need to provide a prior distribution for the evaporation line slope, which is represented as a univariate normal distribution with mean and standard deviation parameters. These can be tricky to estimate, but there are number of papers out there that provide guidance, as well as some tools and data products that might help.
 
 ```{r ELslope}
-slope = c(4.2, 0.3)
+#assumed value that is reasonable for lake water evaporation in this
+#location/climate
+slope = c(5.2, 0.3)
 ```
 
 With our inputs prepared, we can run the analysis using `mwlSource`. 
 
 ```{r mwlSource1}
-mwls1 = mwlSource(obs, MWL, slope, ngens = 1e4)
+mwls1 = mwlSource(obs, MWL, slope, ngens = 5e3)
 mwls1$summary
 ```
 
-The summary object returned by the function provides two statistics that can be used to assess convergence (Rhat and effective sample size), in addition to summary statistics for the posterior distribution. The function's output also includes an object containing all posterior samples (isoWater functions thin the posterior to 2500 samples per chain by default), which we can plot as a trace plot to visually assess burn-in and convergence:
+The summary object returned by the function provides two statistics that can be used to assess convergence (Rhat and effective sample size), in addition to summary statistics for the posterior distribution. For the relatively small chain lengths run in these examples we don't expect strong convergence. The function's output also includes an object containing all posterior samples (isoWater functions thin the posterior to 2500 samples per chain by default), which we can plot as a trace plot to visually assess burn-in and convergence:
 
 ```{r traceplot, fig.width=5, fig.asp=0.8}
 plot(mwls1$results$source_d2H[1:2500], type = "l", ylim = range(mwls1$results$source_d2H))
@@ -61,11 +107,14 @@ lines(mwls1$results$source_d2H[2501:5000], col=2)
 lines(mwls1$results$source_d2H[5001:7500], col=3)
 ```
 
-The MWL model uses one of two line statistics to constrain the source water prior distribution. The default, shown above, uses the MWL confidence interval as the prior, appropriate for samples where the source is best represented as a mixture of many samples of the type used to define the MWL. Alternatively, the argument `stype = 2` can be provided to use the prediction interval as the prior constraint, appropriate if the source is best represetned as a single sample of the type used to define the MWL:
+The MWL model uses one of two line statistics to constrain the source water prior distribution. The default, shown above, uses the MWL confidence interval as the prior, appropriate for samples where the source is best represented as a mixture of many samples of the type used to define the MWL. Alternatively, the argument `stype = 2` can be provided to use the prediction interval as the prior constraint, appropriate if the source is best represetned as a single sample of the type used to define the MWL. You can see that this makes a substantial difference in the resulting posterior distribution, so make sure you're using the right statistics for your problem:
 
 ```{r mwlSource2, fig.width=5, fig.asp=0.8}
-mwls2 = mwlSource(obs, MWL, slope, stype = 2, ngens = 1e4)
-plot(O, H, xlim = c(-20, 0), ylim = c(-140, 0))
+mwls2 = mwlSource(obs, MWL, slope, stype = 2, ngens = 5e3)
+par(mar = c(5, 5, 1, 1))
+plot(HO[, 2:1], xlim = c(-20, 0), ylim = c(-140, 0),
+     xlab = expression(delta^{18}*"O"),
+     ylab = expression(delta^{2}*"H"))
 abline(MWL[2], MWL[1])
 points(obs[2:1], col = "red")
 points(mwls2$results$source_d18O, mwls2$results$source_d2H, col = "blue")
@@ -74,26 +123,47 @@ points(mwls1$results$source_d18O, mwls1$results$source_d2H, col = "green")
 
 ## Mixture source
 
-Based on isotope values for two or more potential water sources, what is the mixture of sources that contributed to a water sample? The `mixSource` function works similarly to `mwlSource`, but requires different arguments to define the mixing model source priors. Values for all sources are provided in a single iso object:
+What if instead of just back-correcting our sample values for evaporation, we wanted to explicitly assess the relative contribution of different water sources to the sample? In other words, based on isotope values for two or more potential water sources, what is the mixture of sources that contributed to the sample? The `mixSource` function works similarly to `mwlSource`, but requires different arguments to define the mixing model source priors. Values for all sources are provided in a single iso object:
 
 ```{r sources}
-#hypothetical sources
-sourcesO = runif(3, -15, -3)
-sources = iso(sourcesO * 8 + 10 + rnorm(3, 0, 2), sourcesO, 0.5, 0.2, 0.05)
+#prep our data - we'll average the precipitation values by quarter
+q = quarters(as.POSIXct(pd$data$Collection_Date))
+qu = sort(unique(q))
+ql = length(qu)
+
+pd_q = data.frame("H" = numeric(ql), "O" = numeric(ql),
+                  "Hsd" = numeric(ql), "Osd" = numeric(ql),
+                  "HOc" = numeric(ql))
+for(i in seq_along(qu)){
+  pd_q$H[i] = mean(pd$data$d2H[q == qu[i]], na.rm = TRUE)
+  pd_q$O[i] = mean(pd$data$d18O[q == qu[i]], na.rm = TRUE)
+  pd_q$Hsd[i] = sd(pd$data$d2H[q == qu[i]], na.rm = TRUE)
+  pd_q$Osd[i] = sd(pd$data$d18O[q == qu[i]], na.rm = TRUE)
+  pd_q$HOc[i] = cov(pd$data$d18O[q == qu[i]], pd$data$d2H[q == qu[i]],
+                    use = "pairwise.complete.obs")
+}
+pd_q
+
+#make the iso object, providing the stats calculated above
+sources = iso(pd_q$H, pd_q$O, pd_q$Hsd, pd_q$Osd, pd_q$HOc)
 ```
 
-Now we can run the analysis; let's use the parallel option (available in `mwlSource` also) to speed this up:
+Now we can run the analysis; let's use the parallel option (also available in `mwlSource`) to speed this up and run slightly longer chains:
 
 ```{r mixSource1}
-mixs1 = mixSource(obs, sources, slope, ngens = 1e4, ncores = 3)
+mixs1 = mixSource(obs, sources, slope, ngens = 2e4, ncores = 2)
 mixs1$summary
 ```
 
-The default options use a prior that weights each source evenly, but if we have other information we can use the arguments `prior` and `shp` to prescribe different distributions. Values in `prior` are relative, so for example if we think source 2 is likely to have contributed twice as much as the others...this may or may not have a strong impact on the results, depending on the strength of the constraints provided by the isotopic data:
+Again, we're a long way from having a strongly converged simulation in which the posterior is likley to be a representative sample of the population parameters, but the initial 'hint' is that the lake sample values are consistent with a sub-equal source contribution from precipitation in each calendar quarter. Notice, too, that the evaporation-corrected sample values ('mixture_d18O' and 'mixture_d2H') are broadly similar to the eqivalent values we obtained with the MWL model, above.
 
-```{r mixSource2, fig.width=5, fig.asp=0.8}
-mixs2 = mixSource(obs, sources, slope, prior = c(1, 2, 1), ngens = 1e4, ncores = 3)
-boxplot(mixs1$results[, 3:5], main = "Default")
-boxplot(mixs2$results[, 3:5], main = "Informed prior", add = TRUE, col = "red")
+The default options use a prior that weights each source evenly, but if we have other information we can use the arguments `prior` and `shp` to prescribe different distributions. Values in `prior` are relative, so for example if we think Q1 is likely to have contributed twice as much as the other seasons...this may or may not have a strong impact on the results, depending on the strength of the constraints provided by the isotopic data:
+
+```{r mixSource2, fig.width=6, fig.asp=0.7}
+mixs2 = mixSource(obs, sources, slope, prior = c(2, 1, 1, 1), ngens = 2e4, ncores = 2)
+par(mar = c(4, 1, 1, 1))
+boxplot(mixs1$results[, 3:6], outline = FALSE)
+boxplot(mixs2$results[, 3:6], add = TRUE, col = rgb(1, 0, 0, 0.5),
+        outline = FALSE)
 ```
 

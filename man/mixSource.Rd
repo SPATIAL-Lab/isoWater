@@ -11,7 +11,7 @@ Given isotopic compositions of two or more potential sources, generate a posteri
 }
 
 \usage{
-mixSource(obs, sources, slope, prior = rep(1,nrow(sources)), shp = 2, 
+mixSource(obs, sources, slope, prior = rep(1,nrow(sources)), shp = 1, 
             ngens = 1e5, ncores = 1)
 }
 

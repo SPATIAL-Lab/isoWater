@@ -1,11 +1,17 @@
 Package: isoWater
 Type: Package
-Title: Infer source of water using stable isotope data
-Version: 0.2.0.9000
-Author: Gabe Bowen
-Maintainer: Gabe Bowen <gabe.bowen@utah.edu>
-Description: Bayesian inference of the source and source isotope composition of water samples that may have experienced evaporation. Original algorithms presented in Bowen et al. (2018) <doi:10.1007/s00442-018-4192-5>.
-Imports: R2jags, parallel, abind, R2WinBUGS, doParallel, foreach
+Title: Discovery, Retrieval, and Analysis of Water Isotope Data 
+Version: 0.2.1
+Authors@R: person("Gabriel", "Bowen", email = "gabe.bowen@utah.edu",
+                  role = c("aut", "cre"))
+Description: wiDB_ functions provide interface to the public API of 
+    the wiDB: build, check and submit queries, and receive and 
+    unpack responses. Data analysis functions support Bayesian 
+    inference of the source and source isotope composition of water 
+    samples that may have experienced evaporation. Algorithms 
+    adapted from Bowen et al. (2018) <doi:10.1007/s00442-018-4192-5>.
+Imports: R2jags, parallel, abind, R2WinBUGS, doParallel, foreach, 
+    httr, jsonlite
 Depends: R (>= 3.5)
 Suggests: 
     knitr,

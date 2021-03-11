@@ -25,6 +25,10 @@ mwl = function(HO, plot = TRUE){
     stop("Non-numeric values in HO")
   }
   ns = nrow(HO)
+  HO = HO[!(is.na(HO[,1]) | is.na(HO[,2])),]
+  if(nrow(HO) != ns){
+    warning("Missing values removed from HO")
+  }
   if(ns < 3){
     stop("At least 3 sample values required")
   }

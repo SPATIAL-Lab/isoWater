@@ -1,7 +1,9 @@
 # isoWater news
 
-## isoWater 0.2.0.9000
-* Updated documentation
+## isoWater 0.2.1
+* Merged functions and documentation from wiDButil package
+* Updated documentation and vignette
+
 
 ## isoWater 0.2.0
 * Reformatted code to create package

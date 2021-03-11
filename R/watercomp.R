@@ -89,7 +89,7 @@ mwlSource = function(obs, MWL=c(8.01, 9.57, -8.096, 2564532.2, 5.76, 80672),
 #takes values of observed and hypothesized endmember source waters (each type 'iso'),hypothesized EL slope,
 #prior (as relative contribution of each source to mixture), and number of parameter draws
 mixSource = function(obs, sources, slope, prior=rep(1,nrow(sources)), 
-                   shp=2, ngens=1e5, ncores = 1){
+                   shp=1, ngens=1e5, ncores = 1){
 
   if(class(obs)[2] != "iso"){
     warning("Expecting iso object for obs, this argument may be
