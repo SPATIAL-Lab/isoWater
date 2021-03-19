@@ -1,9 +1,12 @@
 # isoWater news
 
+## isoWater 0.2.2
+* Changed default stype option for mwlSource to protect from misuse
+* Bug fixes
+
 ## isoWater 0.2.1
 * Merged functions and documentation from wiDButil package
 * Updated documentation and vignette
-
 
 ## isoWater 0.2.0
 * Reformatted code to create package

@@ -107,7 +107,7 @@ lines(mwls1$results$source_d2H[2501:5000], col=2)
 lines(mwls1$results$source_d2H[5001:7500], col=3)
 ```
 
-The MWL model uses one of two line statistics to constrain the source water prior distribution. The default, shown above, uses the MWL confidence interval as the prior, appropriate for samples where the source is best represented as a mixture of many samples of the type used to define the MWL. Alternatively, the argument `stype = 2` can be provided to use the prediction interval as the prior constraint, appropriate if the source is best represetned as a single sample of the type used to define the MWL. You can see that this makes a substantial difference in the resulting posterior distribution, so make sure you're using the right statistics for your problem:
+The MWL model uses one of two line statistics to constrain the source water prior distribution. The default, shown above, uses the MWL prediction interval as the prior, appropriate if the source is best represetned as a single sample of the type used to define the MWL. Alternatively, the argument `stype = 2` can be provided to use the confidence interval as the prior constraint, appropriate for samples where the source is best represented as a mixture of many samples of the type used to define the MWL. You can see that this makes a substantial difference in the resulting posterior distribution, so make sure you're using the right statistics for your problem:
 
 ```{r mwlSource2, fig.width=5, fig.asp=0.8}
 mwls2 = mwlSource(obs, MWL, slope, stype = 2, ngens = 5e3)
@@ -117,8 +117,8 @@ plot(HO[, 2:1], xlim = c(-20, 0), ylim = c(-140, 0),
      ylab = expression(delta^{2}*"H"))
 abline(MWL[2], MWL[1])
 points(obs[2:1], col = "red")
-points(mwls2$results$source_d18O, mwls2$results$source_d2H, col = "blue")
-points(mwls1$results$source_d18O, mwls1$results$source_d2H, col = "green")
+points(mwls1$results$source_d18O, mwls1$results$source_d2H, col = "blue")
+points(mwls2$results$source_d18O, mwls2$results$source_d2H, col = "green")
 ```
 
 ## Mixture source

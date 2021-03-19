@@ -7,9 +7,12 @@
 mwlSource = function(obs, MWL=c(8.01, 9.57, -8.096, 2564532.2, 5.76, 80672), 
                      slope, stype = 1, ngens=1e4, ncores = 1){
 
+  if(MWL[6] == 80672 & stype == 2){
+    warning("Using stype=2 and GMWL is inappropriate for most applications; see man")
+  }
+  
   if(class(obs)[2] != "iso"){
-    warning("Expecting iso object for obs, this argument may be
-            formatted incorrectly")
+    warning("Expecting iso object for obs, this argument may be formatted incorrectly")
   }
   if(!(stype %in% c(1, 2))){
     stop("stype must be 1 or 2, see ?mwlSource")
@@ -32,13 +35,13 @@ mwlSource = function(obs, MWL=c(8.01, 9.57, -8.096, 2564532.2, 5.76, 80672),
   o_cent = (MWL[2] - (obs$H - slope[1] * obs$O) ) / (slope[1]-MWL[1])
   
   #large range of d18O values to evaluate
-  o_eval = seq(o_cent - 25, o_cent + 25, by = 0.1)
+  o_eval = seq(o_cent - 25, o_cent + 25, by = 0.001)
   
   #sample or mean stats?
   if(stype == 1){
-    MWL = c(MWL, 1 / MWL[6])
-  } else{
     MWL = c(MWL, 1 + 1 / MWL[6])
+  } else{
+    MWL = c(MWL, 1 / MWL[6])
   }
   
   #CI or PI bounds on MWL d2H

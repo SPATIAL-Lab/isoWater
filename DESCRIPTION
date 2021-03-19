@@ -1,7 +1,7 @@
 Package: isoWater
 Type: Package
 Title: Discovery, Retrieval, and Analysis of Water Isotope Data 
-Version: 0.2.1
+Version: 0.2.2
 Authors@R: person("Gabriel", "Bowen", email = "gabe.bowen@utah.edu",
                   role = c("aut", "cre"))
 Description: wiDB_ functions provide interface to the public API of 
