@@ -10,7 +10,7 @@ name: test-coverage
 
 jobs:
   test-coverage:
-    runs-on: macOS-latest
+    runs-on: ubuntu-18.04
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -20,10 +20,10 @@ jobs:
 
       - uses: r-lib/actions/setup-pandoc@master
 
-      - name: mac setup
-        if: runner.os == 'macOS'
+      - name: Linux setup
         run: |
-          brew install jags
+          sudo apt-get install libcurl4-openssl-dev
+          sudo apt-get install jags
           
       - name: Query dependencies
         run: |
