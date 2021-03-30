@@ -20,7 +20,7 @@ jobs:
     strategy:
       matrix:
         config:
-          - {os: windows-latest, r: 'devel'}
+          - {os: macOS-latest, r: 'release'}
           - {os: ubuntu-18.04,   r: 'release'}
     steps:
       - uses: actions/checkout@v2.3.4
@@ -33,6 +33,10 @@ jobs:
         run: |
           sudo apt-get install libcurl4-openssl-dev
           sudo apt-get install jags
+      - name: mac setup
+        if: runner.os == 'macOS'
+        run: |
+          brew install jags
       - name: Install dependencies
         run: |
           install.packages(c("remotes", "rcmdcheck"))
