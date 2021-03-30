@@ -20,17 +20,19 @@ jobs:
     strategy:
       matrix:
         config:
-          - {os: macOS-latest,   r: 'release'}
           - {os: ubuntu-18.04,   r: 'release'}
-          - {os: windows-latest,   r: 'devel'}
-          - {os: windows-latest,   r: '3.6'}
-          
     steps:
       - uses: actions/checkout@v2.3.4
       - name: Set up R ${{ matrix.config.r }}
         uses: r-lib/actions/setup-r@master
         with:
           r-version: ${{ matrix.config.r }}
+      - name: Linux setup
+        if: runner.os == 'Linux'
+        run: |
+          - sudo add-apt-repository ppa:marutter/rrutter -y
+          - sudo apt-get update
+          - sudo apt-get install r-cran-rjags
       - name: Install dependencies
         run: |
           install.packages(c("remotes", "rcmdcheck"))
