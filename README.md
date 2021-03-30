@@ -13,3 +13,8 @@ References:
 Bowen, G. J., Putman, A. L., Brooks, J. R., Bowling, D. R., Oerter, E. J., & Good, S. P. (2018) Inferring the source of evaporated waters using stable H and O isotopes. Oecologia, 187(4), 1025-1039.
 
 Putman, A. L., & Bowen, G. J. (2019) A global database of the stable isotopic ratios of meteoric and terrestrial waters. Hydrology and Earth System Sciences 23(10), 4389-4396.
+
+<!-- badges: start -->
+  [![Build status](https://github.com/SPATIAL-Lab/isoWater/actions/workflows/r.yml/badge.svg)](https://github.com/SPATIAL-Lab/isoWater/actions)
+  [![codecov](https://codecov.io/gh/SPATIAL-Lab/isoWater/branch/master/graph/badge.svg)](https://codecov.io/gh/SPATIAL-Lab/isoWater) 
+  <!-- badges: end -->
