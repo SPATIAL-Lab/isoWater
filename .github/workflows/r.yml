@@ -31,7 +31,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           - sudo apt update
-          - sudo apt install jags
+          - sudo apt install rjags
       - name: Install dependencies
         run: |
           install.packages(c("remotes", "rcmdcheck"))
