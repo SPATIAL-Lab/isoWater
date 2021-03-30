@@ -30,6 +30,7 @@ jobs:
       - name: Linux setup
         if: runner.os == 'Linux'
         run: |
+          sudo apt-get install libcurl4-openssl-dev
           sudo apt-get install jags
       - name: Install dependencies
         run: |
