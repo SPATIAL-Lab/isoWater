@@ -10,7 +10,7 @@ Description: wiDB_ functions provide interface to the public API of
     inference of the source and source isotope composition of water 
     samples that may have experienced evaporation. Algorithms 
     adapted from Bowen et al. (2018) <doi:10.1007/s00442-018-4192-5>.
-Imports: R2jags, parallel, abind, R2WinBUGS, doParallel, foreach, 
+Imports: R2jags, abind, R2WinBUGS, doParallel, foreach, 
     httr, jsonlite
 Depends: R (>= 3.5)
 Suggests: 
