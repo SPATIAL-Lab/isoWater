@@ -1,5 +1,9 @@
 # isoWater news
 
+## isoWater 1.0.0
+* First CRAN release
+* Bug fixes
+
 ## isoWater 0.2.2
 * Changed default stype option for mwlSource to protect from misuse
 * Bug fixes

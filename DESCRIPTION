@@ -1,11 +1,12 @@
 Package: isoWater
 Type: Package
 Title: Discovery, Retrieval, and Analysis of Water Isotope Data 
-Version: 0.2.2
-Authors@R: person("Gabriel", "Bowen", email = "gabe.bowen@utah.edu",
+Version: 1.0.0
+Authors@R: person("Gabe", "Bowen", email = "gabe.bowen@utah.edu",
                   role = c("aut", "cre"))
-Description: wiDB_ functions provide interface to the public API of 
-    the wiDB: build, check and submit queries, and receive and 
+Maintainer: Gabe Bowen <gabe.bowen@utah.edu>
+Description: The wiDB_ functions provide an interface to the public API 
+    of the wiDB: build, check and submit queries, and receive and 
     unpack responses. Data analysis functions support Bayesian 
     inference of the source and source isotope composition of water 
     samples that may have experienced evaporation. Algorithms 
