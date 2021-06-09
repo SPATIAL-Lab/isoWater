@@ -30,6 +30,11 @@ jobs:
         uses: r-lib/actions/setup-r@master
         with:
           r-version: ${{ matrix.config.r }}
+      - name: Set up pandoc
+        uses: r-lib/actions/setup-pandoc@master
+        with:
+          pandoc-version: '2.7.3'
+      - run: echo "# Test" | pandoc -t html
       - name: Linux setup
         if: runner.os == 'Linux'
         run: |
