@@ -67,13 +67,17 @@ mwlSource = function(obs, MWL=c(8.01, 9.57, -8.096, 2564532.2, 5.76, 80672),
   n.thin = floor((n.iter - n.burnin) / 2500)
   n.thin = max(n.thin, 1)
   if(ncores > 1){
+    tmf = tempfile(fileext = ".txt")
+    tmfs = file(tmf, "w")
+    cat(mwlModel, file = tmfs)
+    close(tmfs)
     post = jags.parallel(data = d, parameters.to.save = p, 
-                         model.file = mwlMod, 
+                         model.file = tmf, 
                          n.iter = n.iter, n.chains = ncores, 
                          n.burnin = n.burnin, n.thin = n.thin)    
   } else{
     post = jags(data = d, parameters.to.save = p, 
-                model.file = mwlMod, n.iter = n.iter, 
+                model.file = textConnection(mwlModel), n.iter = n.iter, 
                 n.burnin = n.burnin, n.thin = n.thin)    
   }
 
@@ -149,13 +153,17 @@ mixSource = function(obs, sources, slope, prior=rep(1,nrow(sources)),
   n.thin = floor((n.iter - n.burnin) / 2500)
   n.thin = max(n.thin, 1)
   if(ncores > 1){
+    tmf = tempfile(fileext = ".txt")
+    tmfs = file(tmf, "w")
+    cat(mixModel, file = tmfs)
+    close(tmfs)
     post = jags.parallel(data = d, parameters.to.save = p, 
-                         model.file = mixMod, 
+                         model.file = tmf, 
                          n.iter = n.iter, n.chains = ncores, 
                          n.burnin = n.burnin, n.thin = n.thin)
   } else{
     post = jags(data = d, parameters.to.save = p, 
-                model.file = mixMod, 
+                model.file = textConnection(mixModel), 
                 n.iter = n.iter, n.burnin = n.burnin, n.thin = n.thin)
   }
 
@@ -172,56 +180,4 @@ mixSource = function(obs, sources, slope, prior=rep(1,nrow(sources)),
   results@names = n
   
   return(list(summary = post$BUGSoutput$summary, results = results))
-}
-
-mwlMod = function(){
-  #Data model
-  for(i in 1:ndat){
-    obs[i, 1:2] ~ dmnorm.vcov(c(h_pred, o_pred), 
-                              obs.vcov[(1 + (i-1) * 2):(2 + (i-1) * 2),])
-  }
-  
-  #Process model
-  h_pred = source_d2H + E * S
-  o_pred = source_d18O + E
-  
-  #evap prior
-  E ~ dunif(0, 15)
-  
-  #EL slope prior
-  S ~ dnorm(slope[1], 1 / slope[2] ^ 2)
-  
-  #MWL source prior
-  source_d2H ~ dnorm(source_d18O * MWL[1] + MWL[2], 1 / sy ^ 2) 
-  sy = MWL[5] * sqrt(MWL[7] + (source_d18O - MWL[3])^2 / MWL[4])
-  source_d18O ~ dnorm(o_cent, 1 / o_var)
-}
-
-mixMod = function(){
-  #Data model
-  for(i in 1:ndat){
-    obs[i, 1:2] ~ dmnorm.vcov(c(h_pred, o_pred), 
-                              obs.vcov[(1 + (i-1) * 2):(2 + (i-1) * 2),])
-  }
-  
-  #Process model
-  h_pred = mixture_d2H + E * S
-  o_pred = mixture_d18O + E
-  
-  #evap prior
-  E ~ dunif(0, 15)
-  
-  #EL slope prior
-  S ~ dnorm(slope[1], 1 / slope[2] ^ 2)
-  
-  #mixture
-  mixture_d18O = sum(fracs * h_s[, 2])
-  mixture_d2H = sum(fracs * h_s[, 1])
-  fracs ~ ddirch(alphas)
-  
-  #sources prior
-  for(i in 1:nsource){
-    h_s[i, 1:2] ~ dmnorm.vcov(sources[i, 1:2], 
-                              sources.vcov[(1 + (i-1) * 2):(2 + (i-1) * 2),])
-  }
 }
