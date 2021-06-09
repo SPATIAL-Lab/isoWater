@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Setup
 
-isoWater includes two sets of tools. The first supports queries to the Waterisotopes Database ([wiDB](https://waterisotopesDB.org)) to identify and download data. The second uses Bayesian estimation to infer information about the origin of a water sample based on its stable isotope ratios. The package can be installed from the GitHub repository:
+isoWater includes two sets of tools. The first supports queries to the Waterisotopes Database (wiDB, [https://waterisotopesDB.org](https://wateriso.utah.edu/waterisotopes/pages/spatial_db/SPATIAL_DB.html)) to identify and download data. The second uses Bayesian estimation to infer information about the origin of a water sample based on its stable isotope ratios. The package can be installed from the GitHub repository:
 
 ```{r install, eval=FALSE}
 library(devtools)
@@ -94,10 +94,13 @@ slope = c(5.2, 0.3)
 
 With our inputs prepared, we can run the analysis using `mwlSource`. 
 
-```{r mwlSource1}
+```{r mwlSource1, results='hide'}
 mwls1 = mwlSource(obs, MWL, slope, ngens = 5e3)
+```
+```{r mwlSource1out}
 mwls1$summary
 ```
+
 
 The summary object returned by the function provides two statistics that can be used to assess convergence (Rhat and effective sample size), in addition to summary statistics for the posterior distribution. For the relatively small chain lengths run in these examples we don't expect strong convergence. The function's output also includes an object containing all posterior samples (isoWater functions thin the posterior to 2500 samples per chain by default), which we can plot as a trace plot to visually assess burn-in and convergence:
 
@@ -109,8 +112,10 @@ lines(mwls1$results$source_d2H[5001:7500], col=3)
 
 The MWL model uses one of two line statistics to constrain the source water prior distribution. The default, shown above, uses the MWL prediction interval as the prior, appropriate if the source is best represetned as a single sample of the type used to define the MWL. Alternatively, the argument `stype = 2` can be provided to use the confidence interval as the prior constraint, appropriate for samples where the source is best represented as a mixture of many samples of the type used to define the MWL. You can see that this makes a substantial difference in the resulting posterior distribution, so make sure you're using the right statistics for your problem:
 
-```{r mwlSource2, fig.width=5, fig.asp=0.8}
+```{r mwlSource2, results='hide'}
 mwls2 = mwlSource(obs, MWL, slope, stype = 2, ngens = 5e3)
+```
+```{r mulSource2out, fig.width=5, fig.asp=0.8}
 par(mar = c(5, 5, 1, 1))
 plot(HO[, 2:1], xlim = c(-20, 0), ylim = c(-140, 0),
      xlab = expression(delta^{18}*"O"),

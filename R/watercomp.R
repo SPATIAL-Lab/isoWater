@@ -19,11 +19,11 @@ mwlSource = function(obs, MWL=c(8.01, 9.57, -8.096, 2564532.2, 5.76, 80672),
   }
 
   #get number of observations
-  nobs = nrow(obs)
+  ndat = nrow(obs)
   
   #stacked obs vcov matrix
-  obs.vcov = matrix(nrow = nobs * 2, ncol = 2)
-  for(i in 1:nobs){
+  obs.vcov = matrix(nrow = ndat * 2, ncol = 2)
+  for(i in 1:ndat){
     obs.vcov[1 + (i - 1) * 2, 1] = obs[i, 3] ^ 2
     obs.vcov[1 + (i - 1) * 2, 2] = obs[i, 5]
     obs.vcov[2 + (i - 1) * 2, 1] = obs[i, 5]
@@ -58,7 +58,7 @@ mwlSource = function(obs, MWL=c(8.01, 9.57, -8.096, 2564532.2, 5.76, 80672),
 
   d = list(o_cent = o_cent, o_var = o_var,
            obs = obs, obs.vcov = obs.vcov, MWL = MWL,
-           slope = slope, nobs = nobs)
+           slope = slope, ndat = ndat)
   
   p = c("source_d2H", "source_d18O", "S", "E")
 
@@ -100,11 +100,11 @@ mixSource = function(obs, sources, slope, prior=rep(1,nrow(sources)),
   }
   
   #get number of observations
-  nobs = nrow(obs)
+  ndat = nrow(obs)
   
   #stacked obs vcov matrix
-  obs.vcov = matrix(nrow = nobs * 2, ncol = 2)
-  for(i in 1:nobs){
+  obs.vcov = matrix(nrow = ndat * 2, ncol = 2)
+  for(i in 1:ndat){
     obs.vcov[1 + (i - 1) * 2, 1] = obs[i, 3] ^ 2
     obs.vcov[1 + (i - 1) * 2, 2] = obs[i, 5]
     obs.vcov[2 + (i - 1) * 2, 1] = obs[i, 5]
@@ -135,7 +135,7 @@ mixSource = function(obs, sources, slope, prior=rep(1,nrow(sources)),
   alphas = prior/min(prior) * shp
   
   #data
-  d = list(nsource = nsource, nobs = nobs, 
+  d = list(nsource = nsource, ndat = ndat, 
            obs = obs, obs.vcov = obs.vcov,
            sources = sources, sources.vcov = sources.vcov,
            alphas = alphas, slope = slope)
@@ -176,7 +176,7 @@ mixSource = function(obs, sources, slope, prior=rep(1,nrow(sources)),
 
 mwlMod = function(){
   #Data model
-  for(i in 1:nobs){
+  for(i in 1:ndat){
     obs[i, 1:2] ~ dmnorm.vcov(c(h_pred, o_pred), 
                               obs.vcov[(1 + (i-1) * 2):(2 + (i-1) * 2),])
   }
@@ -199,7 +199,7 @@ mwlMod = function(){
 
 mixMod = function(){
   #Data model
-  for(i in 1:nobs){
+  for(i in 1:ndat){
     obs[i, 1:2] ~ dmnorm.vcov(c(h_pred, o_pred), 
                               obs.vcov[(1 + (i-1) * 2):(2 + (i-1) * 2),])
   }

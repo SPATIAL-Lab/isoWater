@@ -75,8 +75,8 @@ wiDB_validate = function(minLat, maxLat, minLong, maxLong, minElev, maxElev,
     if(class(projects) != "character"){stop("projects must be string")}
     projects = gsub("  ", "", projects)
     projects = gsub(" ", "", projects)
-    if(length(types > 1)){
-      types = paste0(types, collapse = ",")
+    if(length(projects > 1)){
+      projects = paste0(projects, collapse = ",")
     }
     qStr = paste0(qStr, "&projects=", projects)
   }

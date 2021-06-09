@@ -10,7 +10,7 @@ wiDB_ functions provide interface to the public API of
     unpack responses. Data analysis functions support Bayesian 
     inference of the source and source isotope composition of water 
     samples that may have experienced evaporation. Algorithms 
-    adapted from Bowen et al. (2018) \href{https://doi.org/10.1007/s00442-018-4192-5}{doi:10.1007/s00442-018-4192-5}.
+    adapted from Bowen et al. (2018) \doi{10.1007/s00442-018-4192-5}.
 }
 
 \author{
