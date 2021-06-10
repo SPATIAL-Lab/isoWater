@@ -86,7 +86,10 @@ mwlSource = function(obs, MWL=c(8.01, 9.57, -8.096, 2564532.2, 5.76, 80672),
   #reassign names to results dataframe
   results@names = c("source_d2H", "source_d18O", "S", "E")
 
-  return(list(summary = post$BUGSoutput$summary, results = results))
+  wcout = list(summary = post$BUGSoutput$summary, results = results)
+  class(wcout) = "mwlSource"
+  
+  return(wcout)
 }
 
 #####
@@ -179,5 +182,8 @@ mixSource = function(obs, sources, slope, prior=rep(1,nrow(sources)),
   n = c(n, "S", "E")
   results@names = n
   
-  return(list(summary = post$BUGSoutput$summary, results = results))
+  wcout = list(summary = post$BUGSoutput$summary, results = results)
+  class(wcout) = "mixSource"
+  
+  return(wcout)
 }

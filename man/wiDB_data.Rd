@@ -55,7 +55,7 @@ wiDB_data(minLat = NULL, maxLat = NULL, minLong = NULL,
     character. Vector of one or more project codes for query.
   }
   \item{fields}{
-    character. Vector of one or more data fields to return from database. If omitted, returns all default fields. See \href{https://github.com/SPATIAL-Lab/wiDButil/blob/master/Protocol.md}{here} for details.
+    character. Vector of one or more data fields to return from database. If omitted, returns all default fields. See \href{https://github.com/SPATIAL-Lab/isoWater/blob/master/Protocol.md}{here} for details.
   }
   \item{tmpdir}{
     character. Directory path to use for unpacking data object.
@@ -66,10 +66,10 @@ wiDB_data(minLat = NULL, maxLat = NULL, minLong = NULL,
 }
 
 \value{
-named list. See \href{https://github.com/SPATIAL-Lab/wiDButil/blob/master/Protocol.md}{here} for details.
+named list. See \href{https://github.com/SPATIAL-Lab/isoWater/blob/master/Protocol.md}{here} for details.
 \item{data}{dataframe. Data records for isotope samples returned by query.}
 \item{projects}{dataframe. Provenance information associated with samples returned by query.}
-Note that some data are embargoed or have been shared under a license that prohibits redistribution. In dataframe \emph{data} values of 9999 indicate that a measurement is available but can't be obtained directly from the wiDB. Project information in dataframe \emph{projects} can be used to contact or visit the primary data source to learn about access to these data. Values of -9999 in \emph{data} indicate no measurement.
+Note that some data are embargoed or have been shared under a license that prohibits redistribution. In dataframe \emph{data} values of 9999 indicate that a measurement is available but can't be obtained directly from the wiDB. Project information in \emph{projects} can be used to contact or visit the primary data source to learn about access to these data. Values of -9999 in \emph{data} indicate no measurement.
 }
 
 \details{

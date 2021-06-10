@@ -56,7 +56,7 @@ wiDB_sites(minLat = NULL, maxLat = NULL, minLong = NULL, maxLong = NULL,
 }
 
 \value{
-dataframe. Contains location and summary information for all wiDB sites returned by query. See \href{https://github.com/SPATIAL-Lab/wiDButil/blob/master/Protocol.md}{here} for details.
+dataframe. Contains location and summary information for all wiDB sites returned by query. See \href{https://github.com/SPATIAL-Lab/isoWater/blob/master/Protocol.md}{here} for details.
 }
 
 \details{

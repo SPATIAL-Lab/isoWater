@@ -3,6 +3,7 @@
 ^data-raw$
 ^papers$
 ^cran-comments\.md$
+^Protocol\.md$
 ^\.travis\.yml$
 ^CRAN-RELEASE$
 ^manuscripts$

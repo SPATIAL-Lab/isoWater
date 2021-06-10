@@ -46,7 +46,7 @@ If \code{ncores} = 1, three chains will be run on a single core. If \code{ncores
 }
 
 \value{
-list.
+Returns an object of class \dQuote{mixSource}, a list containing:
 \item{summary}{
 matrix. Summary table of JAGS MCMC results, including parameter posterior distributions and convergence statistics.
 }

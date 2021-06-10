@@ -51,6 +51,8 @@ mwl = function(HO, plot = TRUE){
   rmse = sqrt(sum(res^2) / (ns - 2))
   
   if(plot){
+    omar = par("mar")
+    on.exit(par(mar = omar))
     par(mar = c(5,5,1,1))
     plot(HO[,2:1], xlab = expression(delta^{18}*"O"), 
          ylab = expression(delta^{2}*"H"))

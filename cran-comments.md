@@ -28,3 +28,10 @@ and configurations.
 
 ## Downstream dependencies
 There are currently no downstream dependencies for this package
+
+## Revision comments
+* Added () to function references in DESCRIPTION.
+* Added url for API protocol in DESCRIPTION.
+* Checked all Rd files for missing \value tags: the referenced file is the master man page for the package, and does not represent an exported method.
+* Checked all functions for modification of options, par, and working directory. Protected one instance of modified par setting by adding an immediate call to on.exit().
+* Checked all examples and vignettes for code modifying par settings. Fixed four instances in the vignette to either eliminate the modification or restore user settings.
