@@ -21,15 +21,15 @@ Possibly mis-spelled words in DESCRIPTION:
 Uses the non-portable package: 'R2WinBUGS'
 
 This is the first CRAN submission of this package. All spelling has been 
-verified. The final entry relates to a dependent package; I haven't been
-able to identify the cause of this NOTE but have verified that our
-package's functionality is not affected across a wide range of platforms
-and configurations.
+verified. The final entry relates to a dependent package, see revision comment below.
 
 ## Downstream dependencies
 There are currently no downstream dependencies for this package
 
 ## Revision comments
+The contents of this resubmission are unchanged. After our previous resubmission we were asked if we could remove the dependency on R2WinBUGS. I replied, explaining the reason for including this dependency and the nature of our use of the package, as was told that this should be OK. However, processing of the package never resumed. I'm resubmitting in hopes of restarting the process.
+
+Changes in the previous resubmission:
 * Added () to function references in DESCRIPTION.
 * Added url for API protocol in DESCRIPTION.
 * Checked all Rd files for missing \value tags: the referenced file is the master man page for the package, and does not represent an exported method.
