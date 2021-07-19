@@ -101,9 +101,25 @@ wiDB_sites = function(minLat = NULL, maxLat = NULL, minLong = NULL, maxLong = NU
   baseStr = "https://wateriso.utah.edu/api/v1/sites.php"
   q = paste0(baseStr, qStr)
   ua = user_agent("https://github.com/SPATIAL-Lab/isoWater")
-  d = GET(q, ua)
+  d = tryCatch({
+    GET(q, ua)
+    },
+    error = function(x){
+      message(conditionMessage(x))
+      return(NULL)
+    },
+    warning = function(x){
+      message(conditionMessage(x))
+      return(NULL)
+    }
+  )
+
+  if(is.null(d)){return()}
   
-  if(d$status_code != 200){stop(paste("Request returned error code", d$status_code))}
+  if(d$status_code != 200){
+    message(paste("Request returned error code", d$status_code))
+    return(NULL)
+  }
 
   resp = fromJSON(content(d, as = "text", encoding = "UTF-8"))
   
@@ -156,9 +172,26 @@ wiDB_data = function(minLat = NULL, maxLat = NULL, minLong = NULL, maxLong = NUL
   baseStr = "https://wateriso.utah.edu/api/v1/download.php"
   q = paste0(baseStr, qStr)
   ua = user_agent("https://github.com/SPATIAL-Lab/isoWater")
-  g = GET(q, ua)
+
+  g = tryCatch({
+    GET(q, ua)
+  },
+  error = function(x){
+    message(conditionMessage(x))
+    return(NULL)
+  },
+  warning = function(x){
+    message(conditionMessage(x))
+    return(NULL)
+  }
+  )
   
-  if(g$status_code != 200){stop(paste("Request returned error code", g$status_code))}
+  if(is.null(g)){return()}
+  
+  if(g$status_code != 200){
+    message(paste("Request returned error code", d$status_code))
+    return(NULL)
+  }  
   
   fn = g$headers$`content-disposition`
   fn = strsplit(fn, "=")[[1]][2]
@@ -216,9 +249,26 @@ wiDB_values = function(fields){
   }
   q = substr(q, 1, nchar(q) - 1)
   ua = user_agent("https://github.com/SPATIAL-Lab/isoWater")
-  d = GET(q, ua)
+
+  d = tryCatch({
+    GET(q, ua)
+  },
+  error = function(x){
+    message(conditionMessage(x))
+    return(NULL)
+  },
+  warning = function(x){
+    message(conditionMessage(x))
+    return(NULL)
+  }
+  )
   
-  if(d$status_code != 200){stop(paste("Request returned error code", d$status_code))}
+  if(is.null(d)){return()}
+  
+  if(d$status_code != 200){
+    message(paste("Request returned error code", d$status_code))
+    return(NULL)
+  }
   
   resp = fromJSON(content(d, as = "text", encoding = "UTF-8"))
   
