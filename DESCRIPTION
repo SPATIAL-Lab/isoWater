@@ -1,7 +1,7 @@
 Package: isoWater
 Type: Package
 Title: Discovery, Retrieval, and Analysis of Water Isotope Data 
-Version: 1.0.0
+Version: 1.0.1
 Authors@R: person("Gabe", "Bowen", email = "gabe.bowen@utah.edu",
                   role = c("aut", "cre"))
 Maintainer: Gabe Bowen <gabe.bowen@utah.edu>
@@ -19,7 +19,8 @@ Suggests:
     knitr,
     rmarkdown,
     testthat (>= 3.0.0),
-    covr
+    covr,
+    curl
 VignetteBuilder: knitr
 License: GPL-3
 Language: en-US

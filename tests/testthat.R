@@ -1,5 +1,5 @@
 library(testthat)
-library(httr)
+library(curl)
 library(isoWater)
 
 test_check("isoWater")

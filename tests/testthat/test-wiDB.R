@@ -1,4 +1,4 @@
-if(curl::has_internet()){
+if(has_internet()){
   p = wiDB_values("projects")
   
   if(!is.null(p)){

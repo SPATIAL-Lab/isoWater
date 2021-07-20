@@ -1,5 +1,8 @@
 # isoWater news
 
+## isoWater 1.0.1
+* Bug fixes
+
 ## isoWater 1.0.0
 * First CRAN release
 * Bug fixes
