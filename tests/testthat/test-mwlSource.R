@@ -1,10 +1,20 @@
 #Prep MWL
 O = runif(10, -15, -2)
 H = O * 8 + 10 + rnorm(10, 0, 6)
+HO = data.frame(H, O)
 
-MWL = mwl(data.frame(H, O), plot = FALSE)
+MWL = mwl(HO, plot = FALSE)
 test_that("mwl works", {
    expect_length(MWL, 6)
+})
+
+d = dex(HO, form = "both")
+test_that("dex works", {
+  expect_s3_class(d, "data.frame")
+  expect_equal(d[,3], H - 8 * O)
+  expect_error(dex(H))
+  expect_error(dex(HO, "lcex", 12))
+  expect_error(dex(HO, "jim"))
 })
 
 obs = iso(-60, -6, 0.5, 0.1, 0)

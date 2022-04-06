@@ -16,5 +16,5 @@ Putman, A. L., & Bowen, G. J. (2019) A global database of the stable isotopic ra
 
 <!-- badges: start -->
   [![Build status](https://github.com/SPATIAL-Lab/isoWater/actions/workflows/r.yml/badge.svg)](https://github.com/SPATIAL-Lab/isoWater/actions)
-  [![codecov](https://codecov.io/gh/SPATIAL-Lab/isoWater/branch/master/graph/badge.svg)](https://codecov.io/gh/SPATIAL-Lab/isoWater) 
+  [![codecov](https://codecov.io/gh/SPATIAL-Lab/isoWater/branch/master/graph/badge.svg)](https://app.codecov.io/gh/SPATIAL-Lab/isoWater) 
   <!-- badges: end -->

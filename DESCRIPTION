@@ -26,3 +26,4 @@ License: GPL-3
 Language: en-US
 Encoding: UTF-8
 RoxygenNote: 7.1.1
+LazyData: true

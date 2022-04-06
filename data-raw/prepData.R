@@ -53,3 +53,6 @@ mixModel = "model{
 }"
 
 use_data(mwlModel, mixModel, internal = TRUE, overwrite = TRUE)
+
+GMWL = c(8.01, 9.57, -8.096, 2564532.2, 5.76, 80672)
+use_data(GMWL, overwrite = TRUE)

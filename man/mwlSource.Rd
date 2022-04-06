@@ -11,8 +11,7 @@ Given parameters describing a meteoric water line in H-O isotope space, generate
 }
 
 \usage{
-mwlSource(obs, MWL=c(8.01, 9.57, -8.096, 2564532.2, 5.76, 80672), 
-                     slope, stype = 1, ngens=1e4, ncores = 1)
+mwlSource(obs, MWL = NULL, slope, stype = 1, ngens=1e4, ncores = 1)
 }
 
 \arguments{
@@ -37,7 +36,7 @@ mwlSource(obs, MWL=c(8.01, 9.57, -8.096, 2564532.2, 5.76, 80672),
 }
 
 \details{
-The prior distribution of source values is constrained by \code{MWL}, which contains the parameters: slope, intercept, average d18O, sum of squares in d18O, root mean square error, and number of samples for an emperically-determined meteoric water line. This object can be created from a H and O isotope dataset using the fuction \code{\link{mwl}}. The default values reflect the Global Meteoric Water Line estimated from a global precipitation compilation in Bowen, et al. (2019). \code{stype} determines how the source uncertainty about the MWL is calculated; the default (1, confidence interval) is appropriate if the source is best represented as an integrated mixture of the samples defining the MWL, whereas option 2 (prediction interval) is appropriate if the source is best represented as a single sample.
+The prior distribution of source values is constrained by \code{MWL}, which contains the parameters: slope, intercept, average d18O, sum of squares in d18O, root mean square error, and number of samples for an empirically-determined meteoric water line. This object can be created from a H and O isotope dataset using the function \code{\link{mwl}}. The default value (if \code{MWL = NULL}) reflects the Global Meteoric Water Line estimated from a global precipitation compilation in Bowen, et al. (2019). \code{stype} determines how the source uncertainty about the MWL is calculated; the default (1, confidence interval) is appropriate if the source is best represented as an integrated mixture of the samples defining the MWL, whereas option 2 (prediction interval) is appropriate if the source is best represented as a single sample.
 
 If \code{ncores} = 1, three chains will be run on a single core. If \code{ncores} > 1, \code{ncores} chains will be run in parallel on \code{ncores} cores. 
 }

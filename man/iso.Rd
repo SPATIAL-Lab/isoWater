@@ -22,10 +22,10 @@ iso(H, O, Hsd, Osd, HOc = 0)
   numeric. Oxygen isotope value or vector of oxygen isotope values.
   }
   \item{Hsd}{
-  numeric. 1 standard devation uncertainty of \code{H} (value or vector of values).
+  numeric. 1 standard deviation uncertainty of \code{H} (value or vector of values).
   }
   \item{Osd}{
-  numeric. 1 standard devation uncertainty of \code{O} (value or vector of values).
+  numeric. 1 standard deviation uncertainty of \code{O} (value or vector of values).
   }
   \item{HOc}{
   numeric. Covariance of \code{H} and \code{O} uncertainties.

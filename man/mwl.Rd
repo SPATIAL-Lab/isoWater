@@ -24,9 +24,9 @@ mwl(HO, plot = TRUE)
 }
 
 \details{
-\code{mwl} will return an error if fewer than 3 sample values are provided and a warning if fewer than 10 samples are provided or if the correlation coefficient betwen H and O values is less than 0.7. Sample values should span a broad enough range of isotope values to strongly constrain the MWL.
+\code{mwl} will return an error if fewer than 3 sample values are provided and a warning if fewer than 10 samples are provided or if the correlation coefficient between H and O values is less than 0.7. Sample values should span a broad enough range of isotope values to strongly constrain the MWL.
 
-Model II (reduced major axis) regression is used to accomodate errors on both isotope values.
+Model II (reduced major axis) regression is used to accommodate errors on both isotope values.
 }
 
 \value{
