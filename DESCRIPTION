@@ -25,3 +25,8 @@ VignetteBuilder: knitr
 License: GPL-3
 Language: en-US
 Encoding: UTF-8
+<<<<<<< HEAD
+=======
+RoxygenNote: 7.1.1
+LazyData: true
+>>>>>>> e6d52351033c444a64b33464ce03712ac211b21f

@@ -73,3 +73,41 @@ mwl = function(HO, plot = TRUE){
   class(mwl) = "mwl"
   return(mwl)
 }
+
+#####
+#--- deuterium excess ----
+#calculate dex for one or more samples
+#####
+
+dex = function(HO, form = "dex", MWL = NULL){
+  if(!inherits(HO, "data.frame")){
+    stop("HO must be a data.frame")
+  }
+  if(!is.numeric(HO[,1]) | !is.numeric(HO[,2])){
+    stop("Non-numeric values in HO")
+  }
+  
+  if(is.null(MWL)){
+    data("GMWL", envir = environment())
+    GMWL = GMWL
+    MWL = GMWL
+  }
+  
+  if(!is.numeric(MWL) | length(MWL) < 2){
+    stop("MWL must be mwl object or numeric vector with slope, intercept")
+  }
+  
+  if(!(form %in% c("dex", "lcex", "both"))){
+    stop("form must be dex, lcex, or both")
+  }
+
+  if(form %in% c("dex", "both")){
+    HO$dex = HO[,1] - 8 * HO[,2]
+  }
+  
+  if(form %in% c("lcex", "both")){
+    HO$lcex = HO[,1] - MWL[1] * HO[,2] - MWL[2]
+  }
+  
+  return(HO)
+}

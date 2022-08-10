@@ -49,7 +49,7 @@ wiDB_data(minLat = NULL, maxLat = NULL, minLong = NULL,
     character. Vector of one or more two-letter state or province codes for query.
   }
   \item{types}{
-    character. Vector of one or more sample types for query. See vocabulary in the \href{https://wateriso.utah.edu/waterisotopes/pages/spatial_db/contribute.html}{wiDB tempate}.
+    character. Vector of one or more sample types for query. See vocabulary in the \href{https://wateriso.utah.edu/waterisotopes/pages/spatial_db/contribute.html}{wiDB template}.
   }
   \item{projects}{
     character. Vector of one or more project codes for query.

@@ -27,7 +27,7 @@ Three functions are available to streamline queries to the wiDB. `wiDB_values()`
 wiDB_values(c("types", "countries"))
 ```
 
-`wiDB_sites()` queries the database and returns a data.frame containing the latitidue and longitude coordinates for all sites matching the provided query criteria. This supports quick screening of data avaiability, for example:
+`wiDB_sites()` queries the database and returns a data.frame containing the latitude and longitude coordinates for all sites matching the provided query criteria. This supports quick screening of data availability, for example:
 
 ```{r sites, fig.width=5, fig.asp=0.6}
 ls = wiDB_sites(countries = "US", types = "Lake")
@@ -110,7 +110,7 @@ lines(mwls1$results$source_d2H[2501:5000], col=2)
 lines(mwls1$results$source_d2H[5001:7500], col=3)
 ```
 
-The MWL model uses one of two line statistics to constrain the source water prior distribution. The default, shown above, uses the MWL prediction interval as the prior, appropriate if the source is best represetned as a single sample of the type used to define the MWL. Alternatively, the argument `stype = 2` can be provided to use the confidence interval as the prior constraint, appropriate for samples where the source is best represented as a mixture of many samples of the type used to define the MWL. You can see that this makes a substantial difference in the resulting posterior distribution, so make sure you're using the right statistics for your problem:
+The MWL model uses one of two line statistics to constrain the source water prior distribution. The default, shown above, uses the MWL prediction interval as the prior, appropriate if the source is best represented as a single sample of the type used to define the MWL. Alternatively, the argument `stype = 2` can be provided to use the confidence interval as the prior constraint, appropriate for samples where the source is best represented as a mixture of many samples of the type used to define the MWL. You can see that this makes a substantial difference in the resulting posterior distribution, so make sure you're using the right statistics for your problem:
 
 ```{r mwlSource2, results='hide'}
 mwls2 = mwlSource(obs, MWL, slope, stype = 2, ngens = 5e3)
@@ -162,7 +162,7 @@ mixs1 = mixSource(obs, sources, slope, ngens = 2e4, ncores = 2)
 mixs1$summary
 ```
 
-Again, we're a long way from having a strongly converged simulation in which the posterior is likley to be a representative sample of the population parameters, but the initial 'hint' is that the lake sample values are consistent with a sub-equal source contribution from precipitation in each calendar quarter. Notice, too, that the evaporation-corrected sample values ('mixture_d18O' and 'mixture_d2H') are broadly similar to the eqivalent values we obtained with the MWL model, above.
+Again, we're a long way from having a strongly converged simulation in which the posterior is likely to be a representative sample of the population parameters, but the initial 'hint' is that the lake sample values are consistent with a sub-equal source contribution from precipitation in each calendar quarter. Notice, too, that the evaporation-corrected sample values ('mixture_d18O' and 'mixture_d2H') are broadly similar to the equivalent values we obtained with the MWL model, above.
 
 The default options use a prior that weights each source evenly, but if we have other information we can use the arguments `prior` and `shp` to prescribe different distributions. Values in `prior` are relative, so for example if we think Q1 is likely to have contributed twice as much as the other seasons...this may or may not have a strong impact on the results, depending on the strength of the constraints provided by the isotopic data:
 
