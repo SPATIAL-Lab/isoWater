@@ -7,45 +7,45 @@ wiDB_validate = function(minLat, maxLat, minLong, maxLong, minElev, maxElev,
   qStr = ""
   
   if(!is.null(minLat)){
-    if(class(minLat) != "numeric"){stop("minLat must be numeric")}
+    if(!inherits(minLat, "numeric")){stop("minLat must be numeric")}
     qStr = paste0(qStr, "&minLat=", minLat)
   }
   if(!is.null(maxLat)){
-    if(class(maxLat) != "numeric"){stop("maxLat must be numeric")}
+    if(!inherits(maxLat, "numeric")){stop("maxLat must be numeric")}
     qStr = paste0(qStr, "&maxLat=", maxLat)
   }
   if(!is.null(minLong)){
-    if(class(minLong) != "numeric"){stop("minLong must be numeric")}
+    if(!inherits(minLong, "numeric")){stop("minLong must be numeric")}
     qStr = paste0(qStr, "&minLong=", minLong)
   }
   if(!is.null(maxLong)){
-    if(class(maxLong) != "numeric"){stop("maxLong must be numeric")}
+    if(!inherits(maxLong, "numeric")){stop("maxLong must be numeric")}
     qStr = paste0(qStr, "&maxLong=", maxLong)
   }
   if(!is.null(minElev)){
-    if(class(minElev) != "numeric"){stop("minElev must be numeric")}
+    if(!inherits(minElev, "numeric")){stop("minElev must be numeric")}
     qStr = paste0(qStr, "&minElev=", minElev)
   } 
   if(!is.null(maxElev)){
-    if(class(maxElev) != "numeric"){stop("maxElev must be numeric")}
+    if(!inherits(maxElev, "numeric")){stop("maxElev must be numeric")}
     qStr = paste0(qStr, "&maxElev=", maxElev)
   }
   if(!is.null(minDate)){
-    if(class(minDate) != "character"){stop("minDate must be string")}
+    if(!inherits(minDate, "character")){stop("minDate must be string")}
     td = c(as.numeric(substr(minDate, 1, 4)), as.numeric(substr(minDate, 6, 7)),
            as.numeric(substr(minDate, 9, 10)))
     if(NA %in% td){stop("minDate format must be YYYY-MM-DD")}
     qStr = paste0(qStr, "&minDate=", minDate)
   }
   if(!is.null(maxDate)){
-    if(class(maxDate) != "character"){stop("maxDate must be string")}
+    if(!inherits(maxDate, "character")){stop("maxDate must be string")}
     td = c(as.numeric(substr(maxDate, 1, 4)), as.numeric(substr(maxDate, 6, 7)),
            as.numeric(substr(maxDate, 9, 10)))
     if(NA %in% td){stop("maxDate format must be YYYY-MM-DD")}
     qStr = paste0(qStr, "&maxDate=", maxDate)
   }
   if(!is.null(countries)){
-    if(class(countries) != "character"){stop("countries must be string")}
+    if(!inherits(countries, "character")){stop("countries must be string")}
     countries = gsub("  ", "", countries)
     countries = gsub(" ", "", countries)
     if(length(countries > 1)){
@@ -54,7 +54,7 @@ wiDB_validate = function(minLat, maxLat, minLong, maxLong, minElev, maxElev,
     qStr = paste0(qStr, "&countries=", countries)
   }
   if(!is.null(states)){
-    if(class(states) != "character"){stop("states must be string")}
+    if(!inherits(states, "character")){stop("states must be string")}
     states = gsub("  ", "", states)
     states = gsub(" ", "", states)
     if(length(states > 1)){
@@ -63,7 +63,7 @@ wiDB_validate = function(minLat, maxLat, minLong, maxLong, minElev, maxElev,
     qStr = paste0(qStr, "&states=", states)
   }
   if(!is.null(types)){
-    if(class(types) != "character"){stop("types must be string")}
+    if(!inherits(types, "character")){stop("types must be string")}
     types = gsub("  ", "", types)
     types = gsub(" ", "", types)
     if(length(types > 1)){
@@ -72,7 +72,7 @@ wiDB_validate = function(minLat, maxLat, minLong, maxLong, minElev, maxElev,
     qStr = paste0(qStr, "&types=", types)
   }
   if(!is.null(projects)){
-    if(class(projects) != "character"){stop("projects must be string")}
+    if(!inherits(projects, "character")){stop("projects must be string")}
     projects = gsub("  ", "", projects)
     projects = gsub(" ", "", projects)
     if(length(projects > 1)){
@@ -148,7 +148,7 @@ wiDB_data = function(minLat = NULL, maxLat = NULL, minLong = NULL, maxLong = NUL
     if(!dir.exists(tmpdir)){stop("Unable to create directory")}
   }
   
-  if(class(clean) != "logical"){stop("clean must be TRUE/FALSE")}
+  if(!inherits(clean, "logical")){stop("clean must be TRUE/FALSE")}
   
   flist = c("Site_ID", "Site_Name", "Latitude", "Longitude", "Elevation", 
             "Sample_ID", "Type", "Start_Date", "Start_Time_Zone", 
@@ -158,7 +158,7 @@ wiDB_data = function(minLat = NULL, maxLat = NULL, minLong = NULL, maxLong = NUL
             "Project_ID")
   
   if(!is.null(fields)){
-    if(class(fields) != "character"){stop("fields must be a string")}
+    if(!inherits(fields, "character")){stop("fields must be a string")}
     fields = gsub("  ", "", fields)
     fields = gsub(" ", "", fields)
     fels = strsplit(fields, ",")

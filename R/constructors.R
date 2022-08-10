@@ -8,6 +8,10 @@ iso = function(H, O, Hsd, Osd, HOc = 0){
   if(any(v$HOc > v$Hsd * v$Osd)){
     stop("Inconsistent SD and COV values")
   }
+  if(any(rowSums(is.na(v)) > 0)){
+    v = v[rowSums((is.na(v))) == 0,]
+    warning("One or more samples include misisng values and were dropped")
+  }
   class(v)[2] = "iso"
   return(v)
 }
@@ -18,7 +22,7 @@ iso = function(H, O, Hsd, Osd, HOc = 0){
 #####
 
 mwl = function(HO, plot = TRUE){
-  if(class(HO)[1] != "data.frame"){
+  if(!inherits(HO, "data.frame")){
     stop("HO must be a data.frame")
   }
   if(!is.numeric(HO[,1]) | !is.numeric(HO[,2])){

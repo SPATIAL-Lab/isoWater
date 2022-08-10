@@ -1,6 +1,8 @@
 # isoWater news
 
 ## isoWater 1.0.1.9000
+* iso function now checks for and removes data with missing values
+* Bug fixes
 
 ## isoWater 1.0.1
 * Bug fixes
