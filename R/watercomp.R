@@ -15,12 +15,7 @@ mwlSource = function(obs, MWL = NULL, slope, stype = 1, ngens=1e4, ncores = 1){
   if(MWL[6] == 80672 & stype == 2){
     warning("Using stype=2 and GMWL is inappropriate for most applications; see man")
   }
-<<<<<<< HEAD
-  if(!(inherits(obs, "iso"))){
-=======
-  
   if(!inherits(obs, "iso")){
->>>>>>> e6d52351033c444a64b33464ce03712ac211b21f
     warning("Expecting iso object for obs, this argument may be formatted incorrectly")
   }
   if(!(stype %in% c(1, 2))){
@@ -110,14 +105,9 @@ mwlSource = function(obs, MWL = NULL, slope, stype = 1, ngens=1e4, ncores = 1){
 mixSource = function(obs, sources, slope, prior=rep(1,nrow(sources)), 
                    shp=1, ngens=1e5, ncores = 1){
 
-<<<<<<< HEAD
-  if(!(inherits(obs, "iso"))){
-    warning("Expecting iso object for obs, this argument may be formatted incorrectly")
-=======
   if(!inherits(obs, "iso")){
     warning("Expecting iso object for obs, this argument may be
             formatted incorrectly")
->>>>>>> e6d52351033c444a64b33464ce03712ac211b21f
   }
   
   #get number of observations
