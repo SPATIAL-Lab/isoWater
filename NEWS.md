@@ -1,6 +1,6 @@
 # isoWater news
 
-## isoWater 1.0.1.9000
+## isoWater 1.1.0
 * Add dex function
 * Bug and spelling fixes
 
