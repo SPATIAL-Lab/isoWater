@@ -1,5 +1,9 @@
 # isoWater news
 
+## isoWater 1.1.0.9000
+* iso function now checks for and removes data with missing values
+* Bug fixes
+
 ## isoWater 1.1.0
 * Add dex function
 * Bug and spelling fixes

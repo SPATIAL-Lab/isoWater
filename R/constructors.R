@@ -8,6 +8,10 @@ iso = function(H, O, Hsd, Osd, HOc = 0){
   if(any(v$HOc > v$Hsd * v$Osd)){
     stop("Inconsistent SD and COV values")
   }
+  if(any(rowSums(is.na(v)) > 0)){
+    v = v[rowSums((is.na(v))) == 0,]
+    warning("One or more samples include misisng values and were dropped")
+  }
   class(v)[2] = "iso"
   return(v)
 }

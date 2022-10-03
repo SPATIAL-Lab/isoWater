@@ -15,7 +15,6 @@ mwlSource = function(obs, MWL = NULL, slope, stype = 1, ngens=1e4, ncores = 1){
   if(MWL[6] == 80672 & stype == 2){
     warning("Using stype=2 and GMWL is inappropriate for most applications; see man")
   }
-  
   if(!inherits(obs, "iso")){
     warning("Expecting iso object for obs, this argument may be formatted incorrectly")
   }
@@ -37,7 +36,7 @@ mwlSource = function(obs, MWL = NULL, slope, stype = 1, ngens=1e4, ncores = 1){
   
   #establish credible range for source water d18O
   #center calculated as intersection of EL and MWL
-  o_cent = (MWL[2] - (obs$H - slope[1] * obs$O) ) / (slope[1]-MWL[1])
+  o_cent = (MWL[2] - (mean(obs$H) - slope[1] * mean(obs$O)) ) / (slope[1]-MWL[1])
   
   #large range of d18O values to evaluate
   o_eval = seq(o_cent - 25, o_cent + 25, by = 0.001)

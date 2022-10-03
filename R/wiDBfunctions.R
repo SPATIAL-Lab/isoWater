@@ -193,6 +193,11 @@ wiDB_data = function(minLat = NULL, maxLat = NULL, minLong = NULL, maxLong = NUL
     return(NULL)
   }  
   
+  if(g$headers$`content-length` == 0){
+    message("Content-length zero")
+    return(NULL)
+  }
+  
   fn = g$headers$`content-disposition`
   fn = strsplit(fn, "=")[[1]][2]
   writeBin(g$content, paste0(tmpdir, "/", fn))
