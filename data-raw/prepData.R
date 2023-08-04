@@ -35,7 +35,7 @@ mixModel = "model{
   o_pred = mixture_d18O + E
   
   #evap prior
-  E ~ dunif(0, 15)
+  E ~ dunif(eprior[1], eprior[2])
   
   #EL slope prior
   S ~ dnorm(slope[1], 1 / slope[2] ^ 2)

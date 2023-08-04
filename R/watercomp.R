@@ -102,8 +102,8 @@ mwlSource = function(obs, MWL = NULL, slope, stype = 1, ngens=1e4, ncores = 1){
 
 #takes values of observed and hypothesized endmember source waters (each type 'iso'),hypothesized EL slope,
 #prior (as relative contribution of each source to mixture), and number of parameter draws
-mixSource = function(obs, sources, slope, prior=rep(1,nrow(sources)), 
-                   shp=1, ngens=1e5, ncores = 1){
+mixSource = function(obs, sources, slope, mixprior=rep(1,nrow(sources)), 
+                   shp=1, eprior = c(0, 15), ngens=1e5, ncores = 1){
 
   if(!inherits(obs, "iso")){
     warning("Expecting iso object for obs, this argument may be
@@ -143,13 +143,13 @@ mixSource = function(obs, sources, slope, prior=rep(1,nrow(sources)),
   }
   
   #dirchlet priors
-  alphas = prior/min(prior) * shp
+  alphas = mixprior/min(mixprior) * shp
   
   #data
   d = list(nsource = nsource, ndat = ndat, 
            obs = obs, obs.vcov = obs.vcov,
            sources = sources, sources.vcov = sources.vcov,
-           alphas = alphas, slope = slope)
+           alphas = alphas, eprior = eprior, slope = slope)
   
   #parameters
   p = c("mixture_d2H", "mixture_d18O", "fracs", "S", "E")
