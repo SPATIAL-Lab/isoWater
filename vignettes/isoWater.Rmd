@@ -29,9 +29,17 @@ wiDB_values(c("types", "countries"))
 
 `wiDB_sites()` queries the database and returns a data.frame containing the latitude and longitude coordinates for all sites matching the provided query criteria. This supports quick screening of data availability, for example:
 
-```{r sites, fig.width=5, fig.asp=0.6}
-ls = wiDB_sites(countries = "US", types = "Lake")
+```{r query1}
+ls = wiDB_sites(countries = "US", types = "Lake_or_pond")
 ps = wiDB_sites(countries = "US", types = "Precipitation")
+```
+
+```{r siteData, include=FALSE}
+ls = readRDS("lsl.rds")
+ps = readRDS("psl.rds")
+```
+
+```{r sites, fig.width=5, fig.asp=0.6}
 omar = par("mar")
 par(mar = c(4, 4, 1, 1))
 plot(ls[, 2:1], xlim = c(-125, -68), ylim = c(25, 50))
@@ -41,9 +49,17 @@ par(mar = omar)
 
 Now we can refine our query and request isotope data using the function `wiDB_data()`. We will focus in on the area around Ames, Iowa, where the sites query showed both lake and precipitation data. 
 
-```{r data}
+```{r query2}
 ld = wiDB_data(minLat = 41, maxLat = 42, minLong = -94, maxLong = -93, types = "Lake")
 pd = wiDB_data(minLat = 41, maxLat = 42, minLong = -94, maxLong = -93, types = "Precipitation")
+```
+
+```{r dataData, include = FALSE}
+ld = readRDS("ldl.rds")
+pd = readRDS("pdl.rds")
+```
+
+```{r data}
 ld$data
 pd$projects
 ```

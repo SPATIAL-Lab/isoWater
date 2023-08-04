@@ -54,5 +54,16 @@ mixModel = "model{
 
 use_data(mwlModel, mixModel, internal = TRUE, overwrite = TRUE)
 
+lsl = wiDB_sites(countries = "US", types = "Lake_or_pond")
+psl = wiDB_sites(countries = "US", types = "Precipitation")
+ldl = wiDB_data(minLat = 41, maxLat = 42, minLong = -94, maxLong = -93, 
+                types = "Lake_or_pond")
+pdl = wiDB_data(minLat = 41, maxLat = 42, minLong = -94, maxLong = -93, 
+                types = "Precipitation")
+saveRDS(lsl, "vignettes/lsl.rds")
+saveRDS(psl, "vignettes/psl.rds")
+saveRDS(ldl, "vignettes/ldl.rds")
+saveRDS(pdl, "vignettes/pdl.rds")
+
 GMWL = c(8.01, 9.57, -8.096, 2564532.2, 5.76, 80672)
 use_data(GMWL, overwrite = TRUE)
