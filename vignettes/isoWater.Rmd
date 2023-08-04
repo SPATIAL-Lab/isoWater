@@ -180,10 +180,10 @@ mixs1$summary
 
 Again, we're a long way from having a strongly converged simulation in which the posterior is likely to be a representative sample of the population parameters, but the initial 'hint' is that the lake sample values are consistent with a sub-equal source contribution from precipitation in each calendar quarter. Notice, too, that the evaporation-corrected sample values ('mixture_d18O' and 'mixture_d2H') are broadly similar to the equivalent values we obtained with the MWL model, above.
 
-The default options use a prior that weights each source evenly, but if we have other information we can use the arguments `prior` and `shp` to prescribe different distributions. Values in `prior` are relative, so for example if we think Q1 is likely to have contributed twice as much as the other seasons...this may or may not have a strong impact on the results, depending on the strength of the constraints provided by the isotopic data:
+The default options use a prior that weights each source evenly, but if we have other information we can use the arguments `mixprior` and `shp` to prescribe different distributions. Values in `mixprior` are relative, so for example if we think Q1 is likely to have contributed twice as much as the other seasons...this may or may not have a strong impact on the results, depending on the strength of the constraints provided by the isotopic data:
 
 ```{r mixSource2, fig.width=6, fig.asp=0.7}
-mixs2 = mixSource(obs, sources, slope, prior = c(2, 1, 1, 1), ngens = 2e4, ncores = 2)
+mixs2 = mixSource(obs, sources, slope, mixprior = c(2, 1, 1, 1), ngens = 2e4, ncores = 2)
 boxplot(mixs1$results[, 3:6], outline = FALSE)
 boxplot(mixs2$results[, 3:6], add = TRUE, col = rgb(1, 0, 0, 0.5),
         outline = FALSE)

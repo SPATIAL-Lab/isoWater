@@ -145,6 +145,25 @@ mixSource = function(obs, sources, slope, mixprior=rep(1,nrow(sources)),
   #dirchlet priors
   alphas = mixprior/min(mixprior) * shp
   
+  #evap priors
+  if(inherits(eprior, "numeric")){
+    if(length(eprior) != 2){
+      stop("eprior must be length 2")
+    }
+    if(any(eprior < 0)){
+      stop("eprior values must be equal to or greater than zero")
+    }
+    if(any(eprior > 15)){
+      message("eprior values greater than 15 are very unlikely in most systems")
+    }
+    eprior = sort(eprior)
+    if(eprior[2] <= eprior[1]){
+      eprior[2] = eprior[1] + 1e-3
+    }
+  } else{
+    stop("eprior must be numeric")
+  }
+  
   #data
   d = list(nsource = nsource, ndat = ndat, 
            obs = obs, obs.vcov = obs.vcov,
