@@ -1,5 +1,4 @@
 ## Version 1.1.2
-Bug fixes.
 
 ## Test environments
 * local Windows 10 x64, R 4.3.1
