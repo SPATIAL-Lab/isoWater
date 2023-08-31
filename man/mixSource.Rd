@@ -11,8 +11,8 @@ Given isotopic compositions of two or more potential sources, generate a posteri
 }
 
 \usage{
-mixSource(obs, sources, slope, prior = rep(1,nrow(sources)), shp = 1, 
-            eprior = c(0, 15), ngens = 1e5, ncores = 1)
+mixSource(obs, sources, slope, prior=rep(1,nrow(sources)), 
+  shp = 1, edist = "unif", eprior = NULL, ngens = 1e5, ncores = 1)
 }
 
 \arguments{
@@ -31,8 +31,11 @@ mixSource(obs, sources, slope, prior = rep(1,nrow(sources)), shp = 1,
   \item{shp}{
   numeric. Shape parameter constant used in specifying prior estimates of source contributions (see Details). 
   }
+  \item{edist}{
+  character. One of \code{"unif"} or \code{"gamma"}, specifying whether the evaporation prior is modeled using a uniform or gamma distribution. 
+  }
   \item{eprior}{
-  numeric. Vector of length 2 giving prior estimates of maximum and minimum oxygen isotope evaporation effect.
+  numeric. Vector of length 2 giving prior parameter estimates for the oxygen isotope evaporation effect. For \code{edist = "unif"} these are maximum and minimum values and the default values are \code{c(0, 15)}. For \code{edist = "gamma"} these are shape and rate parameters, and the defaults are \code{c(1, 1)}.
   }
   \item{ngens}{
   integer. Number of posterior samples to obtain (per chain).

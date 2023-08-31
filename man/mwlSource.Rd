@@ -11,7 +11,8 @@ Given parameters describing a meteoric water line in H-O isotope space, generate
 }
 
 \usage{
-mwlSource(obs, MWL = NULL, slope, stype = 1, ngens=1e4, ncores = 1)
+mwlSource(obs, MWL = NULL, slope, stype = 1, edist = "unif", 
+  eprior = NULL, ngens=1e4, ncores = 1)
 }
 
 \arguments{
@@ -26,6 +27,12 @@ mwlSource(obs, MWL = NULL, slope, stype = 1, ngens=1e4, ncores = 1)
   }
   \item{stype}{
   integer. Line statistic used to constrain the source prior: 1 = confidence interval, 2 = prediction interval (see Details).
+  }
+  \item{edist}{
+  character. One of \code{"unif"} or \code{"gamma"}, specifying whether the evaporation prior is modeled using a uniform or gamma distribution. 
+  }
+  \item{eprior}{
+  numeric. Vector of length 2 giving prior parameter estimates for the oxygen isotope evaporation effect. For \code{edist = "unif"} these are maximum and minimum values and the default values are \code{c(0, 15)}. For \code{edist = "gamma"} these are shape and rate parameters, and the defaults are \code{c(1, 1)}.
   }
   \item{ngens}{
   integer. Number of posterior samples to obtain (per chain).

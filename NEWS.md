@@ -1,5 +1,8 @@
 # isoWater news
 
+## isoWater 1.1.2.9000
+* Added gamma distribution as an option for the prior on the evaporation effect in both mixSource() and mwlSource().
+
 ## isoWater 1.1.2
 * Bug fixes
 * mixSource function now allows optional prior on O-isotope evaporation effect

@@ -4,7 +4,8 @@
 
 #takes values of observed water (type 'iso'), MWL (see below), hypothesized EL slope value
 #and number of parameter draws
-mwlSource = function(obs, MWL = NULL, slope, stype = 1, ngens=1e4, ncores = 1){
+mwlSource = function(obs, MWL = NULL, slope, stype = 1, edist = "unif", 
+                     eprior = NULL, ngens=1e4, ncores = 1){
 
   if(is.null(MWL)){
     data("GMWL", envir = environment())
@@ -59,10 +60,13 @@ mwlSource = function(obs, MWL = NULL, slope, stype = 1, ngens=1e4, ncores = 1){
   #Find se range for d18O
   o_keep = o_eval[h_el >= h_MWL.min & h_el <= h_MWL.max]
   o_var = diff(range(o_keep))^2
+  
+  #check evap arguments
+  eprior = check_evap(edist, eprior)
 
   d = list(o_cent = o_cent, o_var = o_var,
            obs = obs, obs.vcov = obs.vcov, MWL = MWL,
-           slope = slope, ndat = ndat)
+           slope = slope, eprior = eprior, ndat = ndat)
   
   p = c("source_d2H", "source_d18O", "S", "E")
 
@@ -73,15 +77,17 @@ mwlSource = function(obs, MWL = NULL, slope, stype = 1, ngens=1e4, ncores = 1){
   if(ncores > 1){
     tmf = tempfile(fileext = ".txt")
     tmfs = file(tmf, "w")
-    cat(mwlModel, file = tmfs)
+    switch(match(edist, c("unif", "gamma")), cat(mwlModel, file = tmfs),
+           cat(mwlModel.gam, file = tmfs))
     close(tmfs)
     post = jags.parallel(data = d, parameters.to.save = p, 
                          model.file = tmf, 
                          n.iter = n.iter, n.chains = ncores, 
                          n.burnin = n.burnin, n.thin = n.thin)    
   } else{
+    model = switch(match(edist, c("unif", "gamma")), mwlModel, mwlModel.gam)
     post = jags(data = d, parameters.to.save = p, 
-                model.file = textConnection(mwlModel), n.iter = n.iter, 
+                model.file = textConnection(model), n.iter = n.iter, 
                 n.burnin = n.burnin, n.thin = n.thin)    
   }
 
@@ -102,8 +108,9 @@ mwlSource = function(obs, MWL = NULL, slope, stype = 1, ngens=1e4, ncores = 1){
 
 #takes values of observed and hypothesized endmember source waters (each type 'iso'),hypothesized EL slope,
 #prior (as relative contribution of each source to mixture), and number of parameter draws
-mixSource = function(obs, sources, slope, prior=rep(1,nrow(sources)), 
-                   shp=1, eprior = c(0, 15), ngens=1e5, ncores = 1){
+mixSource = function(obs, sources, slope, prior = rep(1,nrow(sources)), 
+                   shp = 1, edist = "unif", eprior = NULL, ngens = 1e5, 
+                   ncores = 1){
 
   if(!inherits(obs, "iso")){
     warning("Expecting iso object for obs, this argument may be
@@ -145,24 +152,8 @@ mixSource = function(obs, sources, slope, prior=rep(1,nrow(sources)),
   #dirchlet priors
   alphas = prior/min(prior) * shp
   
-  #evap priors
-  if(inherits(eprior, "numeric")){
-    if(length(eprior) != 2){
-      stop("eprior must be length 2")
-    }
-    if(any(eprior < 0)){
-      stop("eprior values must be equal to or greater than zero")
-    }
-    if(any(eprior > 15)){
-      message("eprior values greater than 15 are very unlikely in most systems")
-    }
-    eprior = sort(eprior)
-    if(eprior[2] <= eprior[1]){
-      eprior[2] = eprior[1] + 1e-3
-    }
-  } else{
-    stop("eprior must be numeric")
-  }
+  #check evap arguments
+  eprior = check_evap(edist, eprior)
   
   #data
   d = list(nsource = nsource, ndat = ndat, 
@@ -181,15 +172,17 @@ mixSource = function(obs, sources, slope, prior=rep(1,nrow(sources)),
   if(ncores > 1){
     tmf = tempfile(fileext = ".txt")
     tmfs = file(tmf, "w")
-    cat(mixModel, file = tmfs)
+    switch(match(edist, c("unif", "gamma")), cat(mixModel, file = tmfs),
+           cat(mixModel.gam, file = tmfs))
     close(tmfs)
     post = jags.parallel(data = d, parameters.to.save = p, 
                          model.file = tmf, 
                          n.iter = n.iter, n.chains = ncores, 
                          n.burnin = n.burnin, n.thin = n.thin)
   } else{
+    model = switch(match(edist, c("unif", "gamma")), mixModel, mixModel.gam)
     post = jags(data = d, parameters.to.save = p, 
-                model.file = textConnection(mixModel), 
+                model.file = textConnection(model), 
                 n.iter = n.iter, n.burnin = n.burnin, n.thin = n.thin)
   }
 
@@ -209,4 +202,37 @@ mixSource = function(obs, sources, slope, prior=rep(1,nrow(sources)),
   class(wcout) = "mixSource"
   
   return(wcout)
+}
+
+check_evap = function(edist, eprior){
+  #evap distribution
+  if(!(edist %in% c("unif", "gamma"))){
+    stop("edist must be unif or gamma")
+  }
+  
+  #evap prior
+  if(is.null(eprior)){
+    eprior = switch(edist, unif = c(0, 15), gamma = c(1, 1))
+  }
+  if(inherits(eprior, "numeric")){
+    if(length(eprior) != 2){
+      stop("eprior must be length 2")
+    }
+    if(edist == "unif"){
+      if(any(eprior < 0)){
+        stop("eprior values must be equal to or greater than zero")
+      }
+      if(any(eprior > 15)){
+        message("eprior values greater than 15 are very unlikely in most systems")
+      }
+      eprior = sort(eprior)
+      if(eprior[2] <= eprior[1]){
+        eprior[2] = eprior[1] + 1e-3
+      }
+    }
+  } else{
+    stop("eprior must be numeric")
+  }
+  
+  return(eprior)
 }
