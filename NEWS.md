@@ -1,7 +1,11 @@
 # isoWater news
 
+## isoWater 1.1.2.9000
+* Added gamma distribution as an option for the prior on the evaporation effect in both mixSource() and mwlSource().
+
 ## isoWater 1.1.2
 * Bug fixes
+* Added 'eprior' argument to mixSource(), not that argument 'prior' is now called 'mixprior'
 
 ## isoWater 1.1.1
 * iso function now checks for and removes data with missing values
