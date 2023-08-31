@@ -3,8 +3,25 @@
 #creates object of 'iso' used to pass values to functions
 #####
 
-iso = function(H, O, Hsd, Osd, HOc = 0){
-  v = data.frame(H=H, O=O, Hsd=Hsd, Osd=Osd, HOc=HOc)
+iso = function(H, O = 0, Hsd = 0, Osd = 0, HOc = 0){
+  if(inherits(H, "data.frame")){
+    if(ncol(H) == 5 & all(sapply(H, inherits, "numeric"))){
+      v = H
+    } else{
+      stop("data.frame H must include 5 numeric columns")
+    }
+  } else{
+    if(inherits(c(H, O, Hsd, Osd, HOc), "numeric")){
+      if(length(H) == length(O)){
+        v = data.frame(H = H, O = O, Hsd = Hsd, Osd = Osd, HOc = HOc)
+      } else{
+        stop("Arguments H and O must have equal lengths")
+      }
+    } else{
+      stop("All arguments must be numeric")
+    }
+  }
+
   if(any(v$HOc > v$Hsd * v$Osd)){
     stop("Inconsistent SD and COV values")
   }
@@ -12,6 +29,8 @@ iso = function(H, O, Hsd, Osd, HOc = 0){
     v = v[rowSums((is.na(v))) == 0,]
     warning("One or more samples include misisng values and were dropped")
   }
+  
+  names(v) = c("H", "O", "Hsd", "Osd", "HOc")
   class(v)[2] = "iso"
   return(v)
 }

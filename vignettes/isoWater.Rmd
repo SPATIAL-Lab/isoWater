@@ -50,7 +50,7 @@ par(mar = omar)
 Now we can refine our query and request isotope data using the function `wiDB_data()`. We will focus in on the area around Ames, Iowa, where the sites query showed both lake and precipitation data. 
 
 ```{r query2}
-ld = wiDB_data(minLat = 41, maxLat = 42, minLong = -94, maxLong = -93, types = "Lake")
+ld = wiDB_data(minLat = 41, maxLat = 42, minLong = -94, maxLong = -93, types = "Lake_or_pond")
 pd = wiDB_data(minLat = 41, maxLat = 42, minLong = -94, maxLong = -93, types = "Precipitation")
 ```
 
