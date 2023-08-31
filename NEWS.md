@@ -5,7 +5,7 @@
 
 ## isoWater 1.1.2
 * Bug fixes
-* Added 'eprior' argument to mixSource(), not that argument 'prior' is now called 'mixprior'
+* mixSource function now allows optional prior on O-isotope evaporation effect
 
 ## isoWater 1.1.1
 * iso function now checks for and removes data with missing values

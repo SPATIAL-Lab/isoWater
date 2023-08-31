@@ -104,7 +104,8 @@ mixModel.gam = "model{
   }
 }"
 
-use_data(mwlModel, mixModel, mixModel.gam, internal = TRUE, overwrite = TRUE)
+use_data(mwlModel, mwlModel.gam, mixModel, mixModel.gam, 
+         internal = TRUE, overwrite = TRUE)
 
 lsl = wiDB_sites(countries = "US", types = "Lake_or_pond")
 psl = wiDB_sites(countries = "US", types = "Precipitation")

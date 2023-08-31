@@ -108,7 +108,7 @@ mwlSource = function(obs, MWL = NULL, slope, stype = 1, edist = "unif",
 
 #takes values of observed and hypothesized endmember source waters (each type 'iso'),hypothesized EL slope,
 #prior (as relative contribution of each source to mixture), and number of parameter draws
-mixSource = function(obs, sources, slope, mixprior = rep(1,nrow(sources)), 
+mixSource = function(obs, sources, slope, prior = rep(1,nrow(sources)), 
                    shp = 1, edist = "unif", eprior = NULL, ngens = 1e5, 
                    ncores = 1){
 
@@ -150,7 +150,7 @@ mixSource = function(obs, sources, slope, mixprior = rep(1,nrow(sources)),
   }
   
   #dirchlet priors
-  alphas = mixprior/min(mixprior) * shp
+  alphas = prior/min(prior) * shp
   
   #check evap arguments
   eprior = check_evap(edist, eprior)

@@ -11,7 +11,7 @@ Given isotopic compositions of two or more potential sources, generate a posteri
 }
 
 \usage{
-mixSource(obs, sources, slope, mixprior=rep(1,nrow(sources)), 
+mixSource(obs, sources, slope, prior=rep(1,nrow(sources)), 
   shp = 1, edist = "unif", eprior = NULL, ngens = 1e5, ncores = 1)
 }
 
@@ -25,7 +25,7 @@ mixSource(obs, sources, slope, mixprior=rep(1,nrow(sources)),
   \item{slope}{
   numeric. Vector of length two specifying prior parameters for the evaporation line slope (mean, standard deviation).
   }
-  \item{mixprior}{
+  \item{prior}{
   numeric. Vector of length equal to the number of sources, giving prior estimates of relative contributions of different sources.
   }
   \item{shp}{
