@@ -20,9 +20,10 @@ jobs:
     strategy:
       matrix:
         config:
-          - {os: ubuntu-latest,   r: 'release'}
-          - {os: ubuntu-latest,   r: 'devel'}
-          - {os: ubuntu-latest,   r: '4.0'}
+          - {os: macOS-latest, r: 'release'}
+          - {os: ubuntu-latest, r: 'release'}
+          - {os: ubuntu-latest, r: 'devel'}
+          - {os: ubuntu-latest, r: '4.0'}
     steps:
       - uses: actions/checkout@v4
       - name: Set up R ${{ matrix.config.r }}
