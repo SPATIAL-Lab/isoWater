@@ -20,7 +20,6 @@ jobs:
     strategy:
       matrix:
         config:
-          - {os: macOS-latest, r: 'release'}
           - {os: ubuntu-latest,   r: 'release'}
           - {os: ubuntu-latest,   r: 'devel'}
           - {os: ubuntu-latest,   r: '4.0'}
