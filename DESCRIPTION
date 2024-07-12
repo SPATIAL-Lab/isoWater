@@ -1,7 +1,7 @@
 Package: isoWater
 Type: Package
 Title: Discovery, Retrieval, and Analysis of Water Isotope Data 
-Version: 1.1.2.9000
+Version: 1.2.0
 Authors@R: person("Gabe", "Bowen", email = "gabe.bowen@utah.edu",
                   role = c("aut", "cre"))
 Maintainer: Gabe Bowen <gabe.bowen@utah.edu>

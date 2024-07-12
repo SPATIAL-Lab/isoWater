@@ -1,7 +1,7 @@
-## Version 1.1.2
+## Version 1.2.0
 
 ## Test environments
-* local Windows 10 x64, R 4.3.1
+* local Windows 10 x64, R 4.4.0
 * Ubuntu 22.04 (on GitHub Actions), R 4.3.1
 * Ubuntu 22.04 (on GitHub Actions), R 3.6.3
 * Ubuntu 22.04 (on GitHub Actions), r84968
