@@ -21,6 +21,9 @@ jobs:
       matrix:
         config:
           - {os: macOS-latest, r: 'release'}
+          - {os: ubuntu-latest, r: 'release'}
+          - {os: ubuntu-latest, r: 'devel'}
+          - {os: ubuntu-latest, r: '4.0'}
     steps:
       - uses: actions/checkout@v4
       - name: Set up R ${{ matrix.config.r }}
@@ -40,7 +43,7 @@ jobs:
       - name: mac setup
         if: runner.os == 'macOS'
         run: |
-          sudo apt-get install jags
+          brew install jags
       - name: Install dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
         with:
