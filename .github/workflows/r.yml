@@ -18,6 +18,7 @@ jobs:
   build:
     runs-on: ${{ matrix.config.os }}
     strategy:
+      fail-fast: false
       matrix:
         config:
           - {os: macOS-latest, r: 'release'}
@@ -43,7 +44,8 @@ jobs:
       - name: mac setup
         if: runner.os == 'macOS'
         run: |
-          brew install jags
+          wget https://sourceforge.net/projects/mcmc-jags/files/JAGS/4.x/Mac%20OS%20X/JAGS-4.3.2.pkg
+          sudo installer -pkg JAGS-4.3.2.pkg -target /
       - name: Install dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
         with:
