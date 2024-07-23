@@ -26,28 +26,36 @@ jobs:
           - {os: ubuntu-latest, r: '4.0'}
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up R ${{ matrix.config.r }}
         uses: r-lib/actions/setup-r@v2
         with:
           r-version: ${{ matrix.config.r }}
+
       - name: Set up pandoc
         uses: r-lib/actions/setup-pandoc@v2
         with:
           pandoc-version: '2.7.3'
+
       - run: echo "# Test" | pandoc -t html
+
       - name: Linux setup
         if: runner.os == 'Linux'
         run: |
           sudo apt-get install libcurl4-openssl-dev
           sudo apt-get install jags
+
       - name: mac setup
         if: runner.os == 'macOS'
         run: |
           brew install jags
+          echo JAGS_PREFIX=$(brew --cellar jags)/$(brew list --versions jags | tr ' ' '\n' | tail -1) >> $GITHUB_ENV
+
       - name: Install dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck
           needs: check
+
       - name: Check
         uses: r-lib/actions/check-r-package@v2
