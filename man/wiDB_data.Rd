@@ -84,5 +84,5 @@ vals = wiDB_data(minDate = "1990-01-01", maxDate = "2000-01-01",
 #Download data for US Rivers and streams, requesting a subset of data fields
 vals = wiDB_data(minDate = "1980-01-01", maxDate = "2000-01-01", 
   countries = "US", types = "River_or_stream", 
-  fields = "Site_Name,Latitude,Longitude,d2H")
+  fields = c("Site_Name", "Latitude", "Longitude", "d2H"))
 }
