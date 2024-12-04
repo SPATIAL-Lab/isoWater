@@ -162,11 +162,10 @@ wiDB_data = function(minLat = NULL, maxLat = NULL, minLong = NULL, maxLong = NUL
     fields = gsub("  ", "", fields)
     fields = gsub(" ", "", fields)
     fels = strsplit(fields, ",")
-    fels = fels[[1]]
     for(i in 1:length(fels)){
-      if(!(fels[i] %in% flist)){stop(paste("Value", i, "in fields is not a valid field name"))}
+      if(!(fels[[i]] %in% flist)){stop(paste("Value", i, "in fields is not a valid field name"))}
     }
-    qStr = paste0(qStr, "&return=", fields)
+    qStr = paste0(qStr, "&return=", paste(fields, collapse = ","))
   }
   
   baseStr = "https://wateriso.utah.edu/api/v1/download.php"

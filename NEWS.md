@@ -1,5 +1,8 @@
 # isoWater news
 
+## isowater 1.2.0.9000
+* Bug fixes
+
 ## isoWater 1.2.0
 * Added gamma distribution as an option for the prior on the evaporation effect in both mixSource() and mwlSource()
 * iso() now accepts values in a single data.frame
