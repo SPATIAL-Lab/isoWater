@@ -1,6 +1,6 @@
 # isoWater news
 
-## isowater 1.2.0.9001
+## isowater 1.2.1
 * Bug fixes
 
 ## isoWater 1.2.0
