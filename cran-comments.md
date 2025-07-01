@@ -1,4 +1,4 @@
-## Version 1.2.0
+## Version 1.2.0.9001
 
 ## Test environments
 * local Windows 10 x64, R 4.4.0
