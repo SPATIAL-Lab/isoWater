@@ -202,7 +202,7 @@ wiDB_data = function(minLat = NULL, maxLat = NULL, minLong = NULL, maxLong = NUL
   writeBin(g$content, file.path(tmpdir, fn))
 
   #unzip and output .csv
-  unzip(file.path(tmpdir, fn), exdir = paste0(file.path(tmpdir, "downloads")))  
+  unzip(file.path(tmpdir, fn), exdir = file.path(tmpdir))  
   
   #get and order file list
   froot = strsplit(fn, "-")[[1]][1]
