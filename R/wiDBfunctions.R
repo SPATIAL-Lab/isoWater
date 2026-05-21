@@ -198,8 +198,18 @@ wiDB_data = function(minLat = NULL, maxLat = NULL, minLong = NULL, maxLong = NUL
   }
   
   fn = g$headers$`content-disposition`
-  fn = strsplit(fn, "=")[[1]][2]
-  writeBin(g$content, file.path(tmpdir, fn))
+  if(inherits(fn, "character")){
+    if(length(fn) > 0){
+      fn = strsplit(fn, "=")[[1]][2]
+      writeBin(g$content, file.path(tmpdir, fn))
+    } else{
+      message("Content-disposition missing")
+      return(NULL)
+    }
+  } else{
+    message("Content-disposition missing")
+    return(NULL)
+  }
 
   #unzip and output .csv
   unzip(file.path(tmpdir, fn), exdir = file.path(tmpdir, "downloads"), 

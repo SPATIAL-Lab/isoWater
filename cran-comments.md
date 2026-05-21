@@ -1,5 +1,5 @@
-## Version 1.2.1
-Fixed bug caused by new behavior of unzip() in R 4.5.1
+## Version 1.2.1.9000
+Added further protection against errors from poorly formed http response
 
 ## Test environments
 * local Windows 10 x64, R 4.5.1
