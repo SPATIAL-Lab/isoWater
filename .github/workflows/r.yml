@@ -24,7 +24,7 @@ jobs:
           - {os: macOS-latest, r: 'release'}
           - {os: ubuntu-latest, r: 'release'}
           - {os: ubuntu-latest, r: 'devel'}
-          - {os: ubuntu-latest, r: '4.0'}
+          - {os: ubuntu-latest, r: '4.1'}
     steps:
       - uses: actions/checkout@v4
       - name: Set up R ${{ matrix.config.r }}
