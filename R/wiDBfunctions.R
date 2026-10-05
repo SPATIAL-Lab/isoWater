@@ -188,7 +188,7 @@ wiDB_data = function(minLat = NULL, maxLat = NULL, minLong = NULL, maxLong = NUL
   if(is.null(g)){return()}
   
   if(g$status_code != 200){
-    message(paste("Request returned error code", d$status_code))
+    message(paste("Request returned error code", g$status_code))
     return(NULL)
   }  
   

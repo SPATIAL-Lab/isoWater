@@ -1,5 +1,5 @@
-## Version 1.2.2
-Added further protection against errors from poorly formed http response
+## Version 1.2.2.9000
+Fixed bug that compromised http timeout-related error handling
 
 ## Test environments
 * local Windows 10 x64, R 4.5.1
